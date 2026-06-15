@@ -228,22 +228,28 @@ const finishGame = () => {
   document.querySelector('[data-rush-win-exp]').textContent = state.expEarned;
 };
 
+const matchesPokemonInput = (pokemon, value) => (
+  pokemon.aliases.includes(value)
+  || (value === 'nidoran' && ['nidoran-f', 'nidoran-m'].includes(pokemon.key))
+);
+
 const submitPokemon = (event) => {
   event.preventDefault();
   const input = document.querySelector('[data-rush-input]');
   const error = document.querySelector('[data-rush-error]');
   const value = normalizeName(input.value);
-  const inDex = state.pokemon.find((pokemon) => pokemon.aliases.includes(value));
+  const matchesInDex = state.pokemon.filter((pokemon) => matchesPokemonInput(pokemon, value));
+  const newMatches = matchesInDex.filter((pokemon) => !state.found.has(pokemon.key));
   error.textContent = '';
 
-  if (inDex && state.found.has(inDex.key)) {
+  if (matchesInDex.length && !newMatches.length) {
     error.textContent = 'Déjà trouvé.';
     return;
   }
 
-  if (!inDex) {
+  if (!matchesInDex.length) {
     const cache = readCache();
-    const exists = Object.values(cache).flat().some((pokemon) => pokemon.aliases?.includes(value));
+    const exists = Object.values(cache).flat().some((pokemon) => matchesPokemonInput(pokemon, value));
     if (exists) {
       error.textContent = 'Hors Pokédex.';
     } else {
@@ -255,11 +261,13 @@ const submitPokemon = (event) => {
     return;
   }
 
-  state.found.add(inDex.key);
-  const gained = awardRushExp();
   const stats = getStats();
-  stats.totalPokemonFound += 1;
-  stats.expEarned += gained;
+  newMatches.forEach((pokemon) => {
+    state.found.add(pokemon.key);
+    const gained = awardRushExp();
+    stats.totalPokemonFound += 1;
+    stats.expEarned += gained;
+  });
   saveStats(stats);
   input.value = '';
   updateGame();
@@ -284,7 +292,6 @@ const startGame = async () => {
     saveStats(stats);
 
     document.querySelector('[data-rush-title]').textContent = `Pokédex ${state.selectedDex.label}`;
-    document.querySelector('[data-rush-list]').innerHTML = state.pokemon.map((pokemon) => `<option value="${pokemon.name}"></option>`).join('');
     document.querySelector('[data-rush-start-panel]').hidden = true;
     document.querySelector('[data-rush-game]').hidden = false;
     document.querySelector('[data-rush-results-section]').hidden = false;
