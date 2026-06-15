@@ -7,31 +7,10 @@ const games = [
     available: true,
   },
   {
-    id: 'type-rush',
-    title: 'Type Rush',
+    id: 'pokedex',
+    title: 'Pokedex',
     href: '#games',
     accent: 'black',
-    available: false,
-  },
-  {
-    id: 'sprite-blitz',
-    title: 'Sprite Blitz',
-    href: '#games',
-    accent: 'white',
-    available: false,
-  },
-  {
-    id: 'badge-run',
-    title: 'Badge Run',
-    href: '#games',
-    accent: 'red-dark',
-    available: false,
-  },
-  {
-    id: 'dex-grid',
-    title: 'Dex Grid',
-    href: '#games',
-    accent: 'mono',
     available: false,
   },
 ];
@@ -60,25 +39,9 @@ const createGameCard = (game, compact = false) => {
 };
 
 const renderGames = () => {
-  const carousel = document.querySelector('[data-game-carousel]');
   const grid = document.querySelector('[data-games-grid]');
 
-  if (carousel) games.forEach((game) => carousel.appendChild(createGameCard(game)));
   if (grid) games.forEach((game) => grid.appendChild(createGameCard(game, true)));
-};
-
-const setupCarousel = () => {
-  const carousel = document.querySelector('[data-game-carousel]');
-  if (!carousel) return;
-
-  const scrollByCard = (direction) => {
-    const card = carousel.querySelector('.game-card');
-    const distance = card ? card.offsetWidth + 18 : 340;
-    carousel.scrollBy({ left: direction * distance, behavior: 'smooth' });
-  };
-
-  document.querySelector('[data-carousel-prev]')?.addEventListener('click', () => scrollByCard(-1));
-  document.querySelector('[data-carousel-next]')?.addEventListener('click', () => scrollByCard(1));
 };
 
 const setupNavigation = () => {
@@ -115,7 +78,6 @@ const setupNavigation = () => {
 
 window.addEventListener('DOMContentLoaded', () => {
   renderGames();
-  setupCarousel();
   setupNavigation();
   updateHeaderProfile();
   setupProfilePage();
