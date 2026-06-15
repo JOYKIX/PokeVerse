@@ -36,7 +36,7 @@ const setupNavigation = () => {
 };
 
 const POKEDLE_API = 'https://pokeapi.co/api/v2';
-const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v2';
+const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v3';
 const POKEDLE_BATCH_SIZE = 24;
 const POKEVERSE_PROGRESS_KEY = 'pokeverse:progress:v1';
 const POKEDLE_BASE_EXP = 100;
@@ -127,9 +127,28 @@ const getGenerationOrder = (generationName) => {
   return order + 1;
 };
 
+const findEvolutionStage = (chain, speciesName, stage = 1) => {
+  if (chain.species?.name === speciesName) return stage;
+
+  for (const evolution of chain.evolves_to ?? []) {
+    const evolutionStage = findEvolutionStage(evolution, speciesName, stage + 1);
+    if (evolutionStage) return evolutionStage;
+  }
+
+  return null;
+};
+
+const formatEvolutionStage = (stage) => `Stade ${stage}`;
+
 const fetchPokedlePokemon = async () => {
   const cached = readPokedleCache();
   if (cached) return cached;
+
+  const evolutionChains = new Map();
+  const getEvolutionChain = async (url) => {
+    if (!evolutionChains.has(url)) evolutionChains.set(url, fetchJson(url));
+    return evolutionChains.get(url);
+  };
 
   const list = await fetchJson(`${POKEDLE_API}/pokemon?limit=100000&offset=0`);
   const pokemon = await runInBatches(list.results, async ({ name, url }) => {
@@ -137,6 +156,8 @@ const fetchPokedlePokemon = async () => {
     const species = await fetchJson(detail.species.url);
     const generationName = species.generation.name;
     if (!generationLabels[generationName]) return null;
+
+    const evolutionChain = await getEvolutionChain(species.evolution_chain.url);
 
     return {
       id: detail.id,
@@ -148,6 +169,7 @@ const fetchPokedlePokemon = async () => {
       weight: detail.weight,
       generation: generationName,
       generationOrder: getGenerationOrder(generationName),
+      evolutionStage: findEvolutionStage(evolutionChain.chain, species.name) ?? 1,
     };
   });
 
@@ -329,6 +351,7 @@ const setupPokedle = async () => {
       compareNumber(guess.height, secret.height, formatDecimal),
       compareNumber(guess.weight, secret.weight, formatDecimal),
       compareNumber(guess.generationOrder, secret.generationOrder, () => generationLabels[guess.generation]),
+      compareNumber(guess.evolutionStage, secret.evolutionStage, formatEvolutionStage),
     ];
 
     cells.forEach((cell) => row.appendChild(createPokedleCell(cell)));
