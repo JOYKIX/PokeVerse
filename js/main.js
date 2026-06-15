@@ -7,22 +7,6 @@ const games = [
     accent: 'red',
     available: true,
   },
-  {
-    id: 'pokedex',
-    title: 'Pokedex Rush',
-    description: 'Compléter le Pokédex le plus rapidement possible.',
-    href: '#games',
-    accent: 'black',
-    available: false,
-  },
-  {
-    id: 'whos-that-pokemon',
-    title: 'Quel est ce Pokémon ?',
-    description: 'Trouver le Pokémon grâce à sa silhouette.',
-    href: '#games',
-    accent: 'white',
-    available: false,
-  },
 ];
 
 const isExternalLink = (link) => {
