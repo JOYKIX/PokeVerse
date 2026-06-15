@@ -40,7 +40,7 @@ const createGameCard = (game, compact = false) => {
   const article = document.createElement('article');
   article.className = `game-card accent-${game.accent}${compact ? ' compact' : ''}`;
   const action = game.available
-    ? `<a href="${normalizeGameHref(game.href)}" data-nav-link>Ouvrir</a>`
+    ? `<a href="${normalizeGameHref(game.href)}" data-nav-link>Jouer</a>`
     : '<span>Indisponible</span>';
 
   article.innerHTML = `
