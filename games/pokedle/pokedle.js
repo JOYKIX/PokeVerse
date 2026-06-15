@@ -38,8 +38,6 @@ const setupNavigation = () => {
 const POKEDLE_API = 'https://pokeapi.co/api/v2';
 const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v3';
 const POKEDLE_BATCH_SIZE = 24;
-const POKEVERSE_PROGRESS_KEY = 'pokeverse:progress:v1';
-const POKEDLE_BASE_EXP = 100;
 
 const generationLabels = {
   'generation-i': 'Génération I',
@@ -213,43 +211,6 @@ const compareNumber = (guessValue, secretValue, formatter) => ({
   marker: guessValue === secretValue ? '🟩' : guessValue < secretValue ? '▲' : '▼',
 });
 
-const createDefaultProgress = () => ({
-  level: 1,
-  experience: 0,
-  medals: [],
-  experienceBonus: 1,
-});
-
-const readPokeVerseProgress = () => {
-  try {
-    const progress = JSON.parse(localStorage.getItem(POKEVERSE_PROGRESS_KEY));
-    const defaults = createDefaultProgress();
-    return {
-      level: Number.isFinite(progress?.level) ? progress.level : defaults.level,
-      experience: Number.isFinite(progress?.experience) ? progress.experience : defaults.experience,
-      medals: Array.isArray(progress?.medals) ? progress.medals : defaults.medals,
-      experienceBonus: Number.isFinite(progress?.experienceBonus) ? progress.experienceBonus : defaults.experienceBonus,
-    };
-  } catch {
-    return createDefaultProgress();
-  }
-};
-
-const writePokeVerseProgress = (progress) => {
-  localStorage.setItem(POKEVERSE_PROGRESS_KEY, JSON.stringify(progress));
-};
-
-const addPokeVerseExperience = (amount) => {
-  const progress = readPokeVerseProgress();
-  const gained = Math.round(amount * progress.experienceBonus);
-  const nextProgress = {
-    ...progress,
-    experience: progress.experience + gained,
-  };
-  writePokeVerseProgress(nextProgress);
-  return gained;
-};
-
 const setupPokedle = async () => {
   const form = document.querySelector('[data-pokedle-form]');
   const input = document.querySelector('[data-pokedle-input]');
@@ -272,7 +233,7 @@ const setupPokedle = async () => {
   let secret = null;
   let attempts = [];
   let playablePokemon = [];
-  let expEnabled = true;
+  let currentSelection = [];
 
   const setPlayable = (isPlayable) => {
     input.disabled = !isPlayable;
@@ -288,10 +249,12 @@ const setupPokedle = async () => {
 
   const updateExpStatus = () => {
     const selected = getSelectedGenerations();
-    expEnabled = selected.length === generationOptions.length;
-    expStatus.textContent = expEnabled
-      ? '🟢 EXP ACTIVÉE'
-      : '🔴 EXP DÉSACTIVÉE Toutes les générations doivent être actives pour gagner de l’expérience.';
+    const selectedCount = pokemon.filter((entry) => selected.includes(entry.generation)).length;
+    const totalCount = pokemon.length;
+    const multiplier = totalCount ? selectedCount / totalCount : 0;
+    expStatus.textContent = totalCount
+      ? `Pool : ${selectedCount} / ${totalCount} Pokémon · x${multiplier.toFixed(3)}`
+      : '';
   };
 
   const renderGenerationSelection = () => {
@@ -326,6 +289,7 @@ const setupPokedle = async () => {
     startPanel.hidden = true;
     setPlayable(true);
     renderSuggestions();
+    recordPokedleGame({ won: false, attempts: 0, exp: 0 });
   };
 
   const renderSuggestions = () => {
@@ -381,10 +345,21 @@ const setupPokedle = async () => {
 
     if (guess.key === secret.key) {
       setPlayable(false);
-      attemptCount.textContent = `${attempts.length} tentative${attempts.length > 1 ? 's' : ''}`;
-      found.textContent = guess.name;
-      const gained = expEnabled ? addPokeVerseExperience(POKEDLE_BASE_EXP) : 0;
-      expGain.textContent = `${gained} EXP`;
+      const expResult = calculatePokedleExp(playablePokemon.length, pokemon.length, attempts.length);
+      const progressResult = addExperience(expResult.exp, 'pokedle');
+      recordPokedleGame({ won: true, attempts: attempts.length, exp: 0, countPlayed: false });
+      attemptCount.textContent = `Tentatives : ${attempts.length}`;
+      found.textContent = `Pokémon trouvé : ${guess.name}`;
+      expGain.innerHTML = `
+        <span>Générations : ${currentSelection.map((generation) => generationLabels[generation]).join(', ')}</span>
+        <span>Pool : ${playablePokemon.length} Pokémon</span>
+        <span>Multiplicateur génération : x${expResult.generationMultiplier.toFixed(3)}</span>
+        <span>Bonus tentatives : x${expResult.attemptMultiplier.toFixed(2)}</span>
+        <span>Bonus médailles : x${expResult.medalBonusMultiplier.toFixed(2)}</span>
+        <span>EXP gagnée : ${progressResult.gained}</span>
+        <span>Niveau actuel : ${progressResult.profile.level}</span>
+        <span>Progression : ${progressResult.profile.exp} / ${progressResult.profile.expNeeded} EXP</span>
+      `;
       win.hidden = false;
     }
   });
@@ -396,6 +371,7 @@ const setupPokedle = async () => {
       return;
     }
 
+    currentSelection = selected;
     playablePokemon = pokemon.filter((entry) => selected.includes(entry.generation));
     updateExpStatus();
     startGame();
@@ -415,6 +391,7 @@ const setupPokedle = async () => {
   try {
     pokemon = await fetchPokedlePokemon();
     status.textContent = '';
+    updateExpStatus();
     setStartable(true);
   } catch {
     status.textContent = 'Erreur PokeAPI';
@@ -423,6 +400,7 @@ const setupPokedle = async () => {
 
 window.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
+  updateHeaderProfile();
   setupPokedle();
   document.body.classList.add('is-loaded');
 });

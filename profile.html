@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil — PokeVerse</title>
+  <meta name="description" content="Profil PokeVerse." />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/playerProgress.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+<body data-page="profile">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+
+  <header class="site-header" data-site-header>
+    <a class="brand" href="index.html" aria-label="PokeVerse">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>PokeVerse</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
+      <a href="index.html" data-nav-link>Accueil</a>
+      <a href="index.html#games" data-nav-link>Jeux</a>
+      <a href="profile.html" data-nav-link>Profil</a>
+    </nav>
+  </header>
+
+  <main id="main-content" data-profile-page>
+    <section class="profile-page section-block" aria-labelledby="profile-title">
+      <h1 id="profile-title">Profil</h1>
+
+      <form class="profile-form" data-profile-form>
+        <label for="profile-name">Pseudo</label>
+        <input id="profile-name" type="text" maxlength="24" data-profile-name />
+        <button class="btn btn-primary" type="submit">Modifier</button>
+      </form>
+
+      <div class="profile-grid">
+        <section class="profile-card" aria-labelledby="progress-title">
+          <h2 id="progress-title">Progression</h2>
+          <dl class="profile-stats">
+            <div><dt>Niveau</dt><dd data-profile-level></dd></div>
+            <div><dt>EXP</dt><dd data-profile-exp-bar></dd></div>
+            <div><dt>EXP totale</dt><dd data-profile-total-exp></dd></div>
+            <div><dt>Médailles</dt><dd data-profile-medals></dd></div>
+            <div><dt>Bonus EXP</dt><dd data-profile-bonus></dd></div>
+          </dl>
+        </section>
+
+        <section class="profile-card" aria-labelledby="pokedle-stats-title">
+          <h2 id="pokedle-stats-title">Pokedle</h2>
+          <dl class="profile-stats">
+            <div><dt>Parties jouées</dt><dd data-pokedle-played></dd></div>
+            <div><dt>Parties gagnées</dt><dd data-pokedle-won></dd></div>
+            <div><dt>Tentatives totales</dt><dd data-pokedle-attempts></dd></div>
+            <div><dt>Meilleur score</dt><dd data-pokedle-best></dd></div>
+            <div><dt>EXP Pokedle</dt><dd data-pokedle-exp></dd></div>
+          </dl>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 PokeVerse</p>
+    <a href="index.html">Accueil</a>
+  </footer>
+</body>
+</html>

@@ -117,5 +117,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderGames();
   setupCarousel();
   setupNavigation();
+  updateHeaderProfile();
+  setupProfilePage();
   document.body.classList.add('is-loaded');
 });
