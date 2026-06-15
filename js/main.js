@@ -7,6 +7,14 @@ const games = [
     accent: 'red',
     available: true,
   },
+  {
+    id: 'quel-est-ce-pokemon',
+    title: 'Quel est ce Pokémon ?',
+    description: 'Identifier le Pokémon à partir de sa silhouette.',
+    href: 'games/quel-est-ce-pokemon/index.html',
+    accent: 'red',
+    available: true,
+  },
 ];
 
 const isExternalLink = (link) => {

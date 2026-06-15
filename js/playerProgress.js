@@ -1,5 +1,6 @@
 const POKEVERSE_PROFILE_KEY = 'pokeverse:player-profile:v1';
 const BASE_POKEDLE_EXP = 100;
+const SILHOUETTE_MEDAL_PREFIX = 'silhouette:';
 
 const createDefaultPlayerProfile = () => ({
   pseudo: 'Trainer',
@@ -15,6 +16,14 @@ const createDefaultPlayerProfile = () => ({
     totalAttempts: 0,
     bestAttemptScore: null,
     expEarned: 0,
+  },
+  silhouetteStats: {
+    gamesPlayed: 0,
+    bestRun: 0,
+    totalCorrectAnswers: 0,
+    expEarned: 0,
+    writtenGamesPlayed: 0,
+    multipleChoiceGamesPlayed: 0,
   },
 });
 
@@ -37,6 +46,14 @@ const normalizePlayerProfile = (profile) => {
       totalAttempts: Number.isFinite(profile?.pokedleStats?.totalAttempts) ? profile.pokedleStats.totalAttempts : defaults.pokedleStats.totalAttempts,
       bestAttemptScore: Number.isFinite(profile?.pokedleStats?.bestAttemptScore) ? profile.pokedleStats.bestAttemptScore : defaults.pokedleStats.bestAttemptScore,
       expEarned: Number.isFinite(profile?.pokedleStats?.expEarned) ? profile.pokedleStats.expEarned : defaults.pokedleStats.expEarned,
+    },
+    silhouetteStats: {
+      gamesPlayed: Number.isFinite(profile?.silhouetteStats?.gamesPlayed) ? profile.silhouetteStats.gamesPlayed : defaults.silhouetteStats.gamesPlayed,
+      bestRun: Number.isFinite(profile?.silhouetteStats?.bestRun) ? profile.silhouetteStats.bestRun : defaults.silhouetteStats.bestRun,
+      totalCorrectAnswers: Number.isFinite(profile?.silhouetteStats?.totalCorrectAnswers) ? profile.silhouetteStats.totalCorrectAnswers : defaults.silhouetteStats.totalCorrectAnswers,
+      expEarned: Number.isFinite(profile?.silhouetteStats?.expEarned) ? profile.silhouetteStats.expEarned : defaults.silhouetteStats.expEarned,
+      writtenGamesPlayed: Number.isFinite(profile?.silhouetteStats?.writtenGamesPlayed) ? profile.silhouetteStats.writtenGamesPlayed : defaults.silhouetteStats.writtenGamesPlayed,
+      multipleChoiceGamesPlayed: Number.isFinite(profile?.silhouetteStats?.multipleChoiceGamesPlayed) ? profile.silhouetteStats.multipleChoiceGamesPlayed : defaults.silhouetteStats.multipleChoiceGamesPlayed,
     },
   };
 };
@@ -92,6 +109,7 @@ function addExperience(amount, source = '') {
   profile.expBonus = calculateMedalBonus(profile.medals);
 
   if (source === 'pokedle') profile.pokedleStats.expEarned += gained;
+  if (source === 'silhouette') profile.silhouetteStats.expEarned += gained;
 
   const saved = savePlayerProfile(profile);
   updateHeaderProfile();
@@ -117,6 +135,10 @@ function calculatePokedleExp(selectedPokemonCount, totalPokemonCount, attempts) 
   return { exp, generationMultiplier, attemptMultiplier, medalBonusMultiplier };
 }
 
+function calculateSilhouetteMedalBonus(medals = getPlayerProfile().medals) {
+  return 1 + medals.filter((medal) => typeof medal === 'string' && medal.startsWith(SILHOUETTE_MEDAL_PREFIX)).length * 0.02;
+}
+
 function recordPokedleGame({ won, attempts, exp, countPlayed = true }) {
   const profile = getPlayerProfile();
   if (countPlayed) profile.pokedleStats.gamesPlayed += 1;
@@ -128,6 +150,19 @@ function recordPokedleGame({ won, attempts, exp, countPlayed = true }) {
       : Math.min(profile.pokedleStats.bestAttemptScore, attempts);
   }
   if (exp > 0) profile.pokedleStats.expEarned += exp;
+  const saved = savePlayerProfile(profile);
+  updateProfilePage();
+  return saved;
+}
+
+function recordSilhouetteGame({ mode, run, exp }) {
+  const profile = getPlayerProfile();
+  profile.silhouetteStats.gamesPlayed += 1;
+  profile.silhouetteStats.totalCorrectAnswers += run;
+  profile.silhouetteStats.bestRun = Math.max(profile.silhouetteStats.bestRun, run);
+  if (mode === 'written') profile.silhouetteStats.writtenGamesPlayed += 1;
+  if (mode === 'multiple-choice') profile.silhouetteStats.multipleChoiceGamesPlayed += 1;
+  if (exp > 0) profile.silhouetteStats.expEarned += exp;
   const saved = savePlayerProfile(profile);
   updateProfilePage();
   return saved;
@@ -173,6 +208,12 @@ function updateProfilePage() {
   root.querySelector('[data-pokedle-attempts]').textContent = profile.pokedleStats.totalAttempts;
   root.querySelector('[data-pokedle-best]').textContent = profile.pokedleStats.bestAttemptScore ?? '-';
   root.querySelector('[data-pokedle-exp]').textContent = profile.pokedleStats.expEarned;
+  root.querySelector('[data-silhouette-played]').textContent = profile.silhouetteStats.gamesPlayed;
+  root.querySelector('[data-silhouette-best]').textContent = profile.silhouetteStats.bestRun;
+  root.querySelector('[data-silhouette-correct]').textContent = profile.silhouetteStats.totalCorrectAnswers;
+  root.querySelector('[data-silhouette-exp]').textContent = profile.silhouetteStats.expEarned;
+  root.querySelector('[data-silhouette-written]').textContent = profile.silhouetteStats.writtenGamesPlayed;
+  root.querySelector('[data-silhouette-qcm]').textContent = profile.silhouetteStats.multipleChoiceGamesPlayed;
 }
 
 function setupProfilePage() {
