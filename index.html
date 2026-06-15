@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PokeVerse — Hub de mini-jeux</title>
-  <meta name="description" content="PokeVerse est un hub arcade de mini-jeux inspirés de l'univers Pokémon." />
+  <title>PokeVerse</title>
+  <meta name="description" content="Hub de jeux Pokémon." />
   <link rel="stylesheet" href="css/style.css" />
   <script src="js/main.js" defer></script>
 </head>
@@ -12,7 +12,7 @@
   <a class="skip-link" href="#main-content">Aller au contenu</a>
 
   <header class="site-header" data-site-header>
-    <a class="brand" href="index.html" aria-label="Retour à l'accueil PokeVerse">
+    <a class="brand" href="index.html" aria-label="PokeVerse">
       <span class="brand-mark" aria-hidden="true"></span>
       <span>PokeVerse</span>
     </a>
@@ -24,85 +24,51 @@
       <a href="index.html" data-nav-link>Accueil</a>
       <a href="#games" data-nav-link>Jeux</a>
       <a href="#leaderboard" data-nav-link>Classement</a>
-      <a href="#coming-soon" data-nav-link>À venir</a>
     </nav>
   </header>
 
   <main id="main-content">
     <section class="hero section-band">
       <div class="hero-copy">
-        <p class="eyebrow">Arcade Pokémon • défis rapides • scores à battre</p>
-        <h1>Le hub carré, nerveux et rouge vif des mini-jeux Pokémon.</h1>
-        <p class="hero-subtitle">PokeVerse prépare une collection de jeux courts à lancer en quelques clics : devinettes, réflexes, stratégie et classements communautaires.</p>
+        <h1>PokeVerse</h1>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#games">Explorer les jeux</a>
-          <a class="btn btn-ghost" href="games/pokedle/index.html">Voir Pokedle</a>
+          <a class="btn btn-primary" href="#games">Jeux</a>
+          <a class="btn btn-ghost" href="games/pokedle/index.html">Pokedle</a>
         </div>
       </div>
-      <div class="hero-panel" aria-label="Statut de la plateforme">
-        <div class="panel-topline">Saison 00</div>
+      <div class="hero-panel" aria-label="PokeVerse">
         <div class="pokeball-emblem" aria-hidden="true"></div>
-        <dl class="stat-grid">
-          <div><dt>Jeu phare</dt><dd>Pokedle</dd></div>
-          <div><dt>Format</dt><dd>Multi-pages</dd></div>
-          <div><dt>Style</dt><dd>Arcade</dd></div>
-          <div><dt>Statut</dt><dd>En construction</dd></div>
-        </dl>
       </div>
     </section>
 
     <section class="section-block" id="games" aria-labelledby="games-title">
       <div class="section-heading row-heading">
-        <div>
-          <p class="eyebrow">Sélection</p>
-          <h2 id="games-title">Carrousel des jeux</h2>
-        </div>
+        <h2 id="games-title">Jeux</h2>
         <div class="carousel-controls" aria-label="Contrôles du carrousel">
           <button class="square-btn" type="button" data-carousel-prev aria-label="Jeu précédent">‹</button>
           <button class="square-btn" type="button" data-carousel-next aria-label="Jeu suivant">›</button>
         </div>
       </div>
       <div class="carousel-shell">
-        <div class="game-carousel" data-game-carousel tabindex="0" aria-label="Liste horizontale des jeux mis en avant"></div>
+        <div class="game-carousel" data-game-carousel tabindex="0" aria-label="Jeux"></div>
       </div>
-    </section>
-
-    <section class="section-cta" aria-label="Voir tous les jeux">
-      <div>
-        <p class="eyebrow">Catalogue</p>
-        <h2>Une base prête pour ajouter les prochains défis.</h2>
-      </div>
-      <a class="btn btn-primary" href="#all-games">Voir tous les jeux</a>
     </section>
 
     <section class="section-block" id="all-games" aria-labelledby="all-games-title">
       <div class="section-heading">
-        <p class="eyebrow">Grille complète</p>
         <h2 id="all-games-title">Tous les jeux</h2>
       </div>
       <div class="games-grid" data-games-grid></div>
     </section>
 
     <section class="info-strip" id="leaderboard" aria-labelledby="leaderboard-title">
-      <div>
-        <p class="eyebrow">Classement</p>
-        <h2 id="leaderboard-title">Scores et ligues bientôt disponibles.</h2>
-      </div>
-      <p>La structure est prête pour connecter plus tard des tableaux de scores par mini-jeu, saisons et badges.</p>
-    </section>
-
-    <section class="info-strip inverted" id="coming-soon" aria-labelledby="coming-soon-title">
-      <div>
-        <p class="eyebrow">À venir</p>
-        <h2 id="coming-soon-title">Pokedle ouvrira la première arène.</h2>
-      </div>
-      <p>Le hub affiche déjà son emplacement, mais le gameplay sera développé dans une étape dédiée.</p>
+      <h2 id="leaderboard-title">Classement</h2>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© 2026 PokeVerse — mini-jeux fan-made, direction arcade originale.</p>
-    <a href="#main-content">Retour en haut</a>
+    <p>© 2026 PokeVerse</p>
+    <a href="#main-content">Haut</a>
   </footer>
 </body>
 </html>

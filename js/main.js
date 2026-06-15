@@ -2,51 +2,36 @@ const games = [
   {
     id: 'pokedle',
     title: 'Pokedle',
-    status: 'Premier jeu prévu',
-    description: 'Devine le Pokémon du jour grâce à des indices progressifs. Gameplay à venir.',
     href: 'games/pokedle/index.html',
     accent: 'red',
-    tag: 'Bientôt jouable',
     available: true,
   },
   {
     id: 'type-rush',
     title: 'Type Rush',
-    status: 'Bientôt disponible',
-    description: 'Réponds vite aux faiblesses et résistances avant la fin du chrono.',
-    href: '#coming-soon',
+    href: '#games',
     accent: 'black',
-    tag: 'Réflexes',
     available: false,
   },
   {
     id: 'sprite-blitz',
     title: 'Sprite Blitz',
-    status: 'Bientôt disponible',
-    description: 'Identifie les silhouettes et sprites en mode arcade compact.',
-    href: '#coming-soon',
+    href: '#games',
     accent: 'white',
-    tag: 'Mémoire',
     available: false,
   },
   {
     id: 'badge-run',
     title: 'Badge Run',
-    status: 'Bientôt disponible',
-    description: 'Une suite de défis courts pour grimper dans les ligues du hub.',
-    href: '#coming-soon',
+    href: '#games',
     accent: 'red-dark',
-    tag: 'Challenge',
     available: false,
   },
   {
     id: 'dex-grid',
     title: 'Dex Grid',
-    status: 'Bientôt disponible',
-    description: 'Complète des grilles de Pokédex avec logique et rapidité.',
-    href: '#coming-soon',
+    href: '#games',
     accent: 'mono',
-    tag: 'Puzzle',
     available: false,
   },
 ];
@@ -66,12 +51,9 @@ const createGameCard = (game, compact = false) => {
   const article = document.createElement('article');
   article.className = `game-card accent-${game.accent}${compact ? ' compact' : ''}`;
   article.innerHTML = `
-    <div class="card-status">${game.status}</div>
     <h3>${game.title}</h3>
-    <p>${game.description}</p>
     <div class="card-footer">
-      <span>${game.tag}</span>
-      <a href="${normalizeGameHref(game.href)}" data-nav-link>${game.available ? 'Ouvrir' : 'Détails'}</a>
+      <a href="${normalizeGameHref(game.href)}" data-nav-link>${game.available ? 'Ouvrir' : 'Indisponible'}</a>
     </div>
   `;
   return article;
