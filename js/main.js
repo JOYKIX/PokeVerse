@@ -2,15 +2,25 @@ const games = [
   {
     id: 'pokedle',
     title: 'Pokedle',
+    description: 'Trouver le Pokémon secret avec les indices.',
     href: 'games/pokedle/index.html',
     accent: 'red',
     available: true,
   },
   {
     id: 'pokedex',
-    title: 'Pokedex',
+    title: 'Pokedex Rush',
+    description: 'Compléter le Pokédex le plus rapidement possible.',
     href: '#games',
     accent: 'black',
+    available: false,
+  },
+  {
+    id: 'whos-that-pokemon',
+    title: 'Quel est ce Pokémon ?',
+    description: 'Trouver le Pokémon grâce à sa silhouette.',
+    href: '#games',
+    accent: 'white',
     available: false,
   },
 ];
@@ -29,10 +39,15 @@ const normalizeGameHref = (href) => {
 const createGameCard = (game, compact = false) => {
   const article = document.createElement('article');
   article.className = `game-card accent-${game.accent}${compact ? ' compact' : ''}`;
+  const action = game.available
+    ? `<a href="${normalizeGameHref(game.href)}" data-nav-link>Ouvrir</a>`
+    : '<span>Indisponible</span>';
+
   article.innerHTML = `
     <h3>${game.title}</h3>
+    <p>${game.description}</p>
     <div class="card-footer">
-      <a href="${normalizeGameHref(game.href)}" data-nav-link>${game.available ? 'Ouvrir' : 'Indisponible'}</a>
+      ${action}
     </div>
   `;
   return article;
