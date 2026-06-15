@@ -25,6 +25,7 @@
       <a href="../../index.html" data-nav-link>Accueil</a>
       <a href="../../index.html#games" data-nav-link>Jeux</a>
       <a href="../../profile.html" data-nav-link>Profil</a>
+      <a href="../../medals.html" data-nav-link>Médailles</a>
     </nav>
   </header>
 
@@ -74,7 +75,12 @@
         <h2>Pokémon trouvés</h2>
         <p>Restants : <span data-rush-remaining>0</span></p>
       </div>
-      <div class="pokedex-rush-grid" data-rush-found></div>
+      <div class="pokedex-rush-table-wrap">
+        <table class="pokedex-rush-table">
+          <thead><tr><th>N°</th><th>Pokémon</th></tr></thead>
+          <tbody data-rush-found></tbody>
+        </table>
+      </div>
     </section>
   </main>
 

@@ -232,3 +232,28 @@ function setupProfilePage() {
   });
   updateProfilePage();
 }
+
+const MEDAL_LABELS = {
+  'pokedex-rush:master:kanto': 'Maitre de Kanto',
+  'pokedex-rush:master:johto': 'Maitre de Johto',
+  'pokedex-rush:master:hoenn': 'Maitre de Hoenn',
+  'pokedex-rush:master:sinnoh': 'Maitre de Sinnoh',
+  'pokedex-rush:master:unys': 'Maitre de Unys',
+  'pokedex-rush:master:kalos': 'Maitre de Kalos',
+  'pokedex-rush:master:alola': 'Maitre de Alola',
+  'pokedex-rush:master:galar': 'Maitre de Galar',
+  'pokedex-rush:master:paldea': 'Maitre de Paldea',
+  'pokedex-rush:all-generations': 'Le meilleur dresseur',
+};
+
+function getMedalLabel(medal) {
+  return MEDAL_LABELS[medal] ?? medal;
+}
+
+function setupMedalsPage() {
+  const root = document.querySelector('[data-medals-page]');
+  if (!root) return;
+  const profile = getPlayerProfile();
+  const list = root.querySelector('[data-medals-list]');
+  list.innerHTML = profile.medals.map((medal) => `<li>${getMedalLabel(medal)}</li>`).join('');
+}

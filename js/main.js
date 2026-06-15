@@ -96,5 +96,6 @@ window.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
   updateHeaderProfile();
   setupProfilePage();
+  setupMedalsPage();
   document.body.classList.add('is-loaded');
 });
