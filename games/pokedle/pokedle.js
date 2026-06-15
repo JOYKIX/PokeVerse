@@ -154,7 +154,7 @@ const fetchPokedlePokemon = async () => {
 
 const createPokedleCell = ({ value, state, marker = '' }) => {
   const cell = document.createElement('td');
-  cell.className = `pokedle-cell ${state === 'correct' ? 'is-correct' : 'is-wrong'}`;
+  cell.className = `pokedle-cell is-${state}`;
 
   const content = document.createElement('span');
   content.className = 'pokedle-cell-value';
@@ -174,6 +174,11 @@ const createPokedleCell = ({ value, state, marker = '' }) => {
 const compareText = (guessValue, secretValue, formatter = (value) => value) => ({
   value: formatter(guessValue),
   state: guessValue === secretValue ? 'correct' : 'wrong',
+});
+
+const compareType = (guessValue, secretValue, otherSecretValue, formatter) => ({
+  value: formatter(guessValue),
+  state: guessValue === secretValue ? 'correct' : guessValue === otherSecretValue ? 'misplaced' : 'wrong',
 });
 
 const compareNumber = (guessValue, secretValue, formatter) => ({
@@ -231,8 +236,8 @@ const setupPokedle = async () => {
     const secondarySecret = secret.secondaryType ?? 'none';
     const cells = [
       compareText(guess.key, secret.key, () => guess.name),
-      compareText(guess.primaryType, secret.primaryType, (value) => typeLabels[value] ?? formatPokemonName(value)),
-      compareText(secondaryGuess, secondarySecret, (value) => value === 'none' ? 'Aucun' : typeLabels[value] ?? formatPokemonName(value)),
+      compareType(guess.primaryType, secret.primaryType, secondarySecret, (value) => typeLabels[value] ?? formatPokemonName(value)),
+      compareType(secondaryGuess, secondarySecret, secret.primaryType, (value) => value === 'none' ? 'Aucun' : typeLabels[value] ?? formatPokemonName(value)),
       compareNumber(guess.height, secret.height, formatDecimal),
       compareNumber(guess.weight, secret.weight, formatDecimal),
       compareNumber(guess.generationOrder, secret.generationOrder, () => generationLabels[guess.generation]),

@@ -279,6 +279,7 @@ dd { margin: .2rem 0 0; font-size: 1.25rem; }
 .pokedle-table th { background: var(--black); color: var(--white); }
 .pokedle-cell { min-width: 105px; }
 .pokedle-cell.is-correct { background: #1f9d55; color: var(--white); }
+.pokedle-cell.is-misplaced { background: #f59e0b; color: var(--black); }
 .pokedle-cell.is-wrong { background: var(--red); color: var(--white); }
 .pokedle-cell-value { display: block; font-size: 1.05rem; }
 .pokedle-marker { display: block; margin-top: .25rem; font-size: 1.2rem; line-height: 1; }
