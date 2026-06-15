@@ -253,6 +253,31 @@ dd { margin: .2rem 0 0; font-size: 1.25rem; }
 
 .pokedle-page { min-height: calc(100vh - 150px); }
 .pokedle-hero { padding: clamp(1rem, 4vw, 3rem); }
+.pokedle-start { margin-bottom: 1.25rem; }
+.pokedle-generations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: .75rem;
+  max-width: 820px;
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 3px solid var(--black);
+}
+.pokedle-generations legend { padding: 0 .5rem; text-transform: uppercase; }
+.pokedle-generation {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 44px;
+  padding: .55rem .7rem;
+  border: 3px solid var(--black);
+  background: var(--white);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+}
+.pokedle-generation input { width: 18px; height: 18px; accent-color: var(--red); }
+.pokedle-exp, .pokedle-error { font-weight: 900; }
+.pokedle-error { color: var(--red); }
 .pokedle-form { display: flex; flex-wrap: wrap; gap: .75rem; max-width: 720px; }
 .pokedle-input {
   min-height: 48px;

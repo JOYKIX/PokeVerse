@@ -30,6 +30,14 @@
   <main id="main-content" class="pokedle-page">
     <section class="pokedle-hero section-band" aria-labelledby="pokedle-title">
       <h1 id="pokedle-title">Pokedle</h1>
+      <div class="pokedle-start" data-pokedle-start-panel>
+        <fieldset class="pokedle-generations" data-pokedle-generations>
+          <legend>Sélection des générations</legend>
+        </fieldset>
+        <p class="pokedle-exp" data-pokedle-exp></p>
+        <button class="btn btn-primary" type="button" data-pokedle-start>Commencer la partie</button>
+        <p class="pokedle-error" data-pokedle-error></p>
+      </div>
       <form class="pokedle-form" data-pokedle-form autocomplete="off">
         <label class="sr-only" for="pokedle-search">Pokémon</label>
         <input id="pokedle-search" class="pokedle-input" type="search" list="pokedle-list" placeholder="Pokémon" data-pokedle-input disabled />
@@ -41,6 +49,7 @@
         <h2>Victoire</h2>
         <p><span data-pokedle-attempt-count></span></p>
         <p><span data-pokedle-found></span></p>
+        <p><span data-pokedle-exp-gain></span></p>
         <button class="btn btn-primary" type="button" data-pokedle-new>Nouvelle partie</button>
       </div>
     </section>
