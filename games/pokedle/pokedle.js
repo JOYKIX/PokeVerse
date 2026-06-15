@@ -38,6 +38,8 @@ const setupNavigation = () => {
 const POKEDLE_API = 'https://pokeapi.co/api/v2';
 const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v2';
 const POKEDLE_BATCH_SIZE = 24;
+const POKEVERSE_PROGRESS_KEY = 'pokeverse:progress:v1';
+const POKEDLE_BASE_EXP = 100;
 
 const generationLabels = {
   'generation-i': 'Génération I',
@@ -50,6 +52,8 @@ const generationLabels = {
   'generation-viii': 'Génération VIII',
   'generation-ix': 'Génération IX',
 };
+
+const generationOptions = Object.entries(generationLabels).map(([value, label]) => ({ value, label }));
 
 const typeLabels = {
   bug: 'Insecte',
@@ -187,6 +191,43 @@ const compareNumber = (guessValue, secretValue, formatter) => ({
   marker: guessValue === secretValue ? '🟩' : guessValue < secretValue ? '▲' : '▼',
 });
 
+const createDefaultProgress = () => ({
+  level: 1,
+  experience: 0,
+  medals: [],
+  experienceBonus: 1,
+});
+
+const readPokeVerseProgress = () => {
+  try {
+    const progress = JSON.parse(localStorage.getItem(POKEVERSE_PROGRESS_KEY));
+    const defaults = createDefaultProgress();
+    return {
+      level: Number.isFinite(progress?.level) ? progress.level : defaults.level,
+      experience: Number.isFinite(progress?.experience) ? progress.experience : defaults.experience,
+      medals: Array.isArray(progress?.medals) ? progress.medals : defaults.medals,
+      experienceBonus: Number.isFinite(progress?.experienceBonus) ? progress.experienceBonus : defaults.experienceBonus,
+    };
+  } catch {
+    return createDefaultProgress();
+  }
+};
+
+const writePokeVerseProgress = (progress) => {
+  localStorage.setItem(POKEVERSE_PROGRESS_KEY, JSON.stringify(progress));
+};
+
+const addPokeVerseExperience = (amount) => {
+  const progress = readPokeVerseProgress();
+  const gained = Math.round(amount * progress.experienceBonus);
+  const nextProgress = {
+    ...progress,
+    experience: progress.experience + gained,
+  };
+  writePokeVerseProgress(nextProgress);
+  return gained;
+};
+
 const setupPokedle = async () => {
   const form = document.querySelector('[data-pokedle-form]');
   const input = document.querySelector('[data-pokedle-input]');
@@ -197,31 +238,78 @@ const setupPokedle = async () => {
   const win = document.querySelector('[data-pokedle-win]');
   const attemptCount = document.querySelector('[data-pokedle-attempt-count]');
   const found = document.querySelector('[data-pokedle-found]');
+  const expGain = document.querySelector('[data-pokedle-exp-gain]');
   const newGame = document.querySelector('[data-pokedle-new]');
+  const startPanel = document.querySelector('[data-pokedle-start-panel]');
+  const generations = document.querySelector('[data-pokedle-generations]');
+  const expStatus = document.querySelector('[data-pokedle-exp]');
+  const start = document.querySelector('[data-pokedle-start]');
+  const error = document.querySelector('[data-pokedle-error]');
 
   let pokemon = [];
   let secret = null;
   let attempts = [];
+  let playablePokemon = [];
+  let expEnabled = true;
 
   const setPlayable = (isPlayable) => {
     input.disabled = !isPlayable;
     submit.disabled = !isPlayable;
   };
 
+  const setStartable = (isStartable) => {
+    start.disabled = !isStartable;
+  };
+
+  const getSelectedGenerations = () => Array.from(generations.querySelectorAll('input:checked'))
+    .map((checkbox) => checkbox.value);
+
+  const updateExpStatus = () => {
+    const selected = getSelectedGenerations();
+    expEnabled = selected.length === generationOptions.length;
+    expStatus.textContent = expEnabled
+      ? '🟢 EXP ACTIVÉE'
+      : '🔴 EXP DÉSACTIVÉE Toutes les générations doivent être actives pour gagner de l’expérience.';
+  };
+
+  const renderGenerationSelection = () => {
+    generationOptions.forEach(({ value, label }) => {
+      const item = document.createElement('label');
+      item.className = 'pokedle-generation';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = value;
+      checkbox.checked = true;
+      checkbox.addEventListener('change', updateExpStatus);
+
+      const text = document.createElement('span');
+      text.textContent = label;
+
+      item.append(checkbox, text);
+      generations.appendChild(item);
+    });
+    updateExpStatus();
+  };
+
   const startGame = () => {
-    secret = pokemon[Math.floor(Math.random() * pokemon.length)];
+    secret = playablePokemon[Math.floor(Math.random() * playablePokemon.length)];
     attempts = [];
     attemptsBody.innerHTML = '';
     input.value = '';
     win.hidden = true;
+    expGain.textContent = '';
     status.textContent = '';
+    error.textContent = '';
+    startPanel.hidden = true;
     setPlayable(true);
+    renderSuggestions();
   };
 
   const renderSuggestions = () => {
     const attempted = new Set(attempts.map((attempt) => attempt.key));
     list.innerHTML = '';
-    pokemon
+    playablePokemon
       .filter((entry) => !attempted.has(entry.key))
       .forEach((entry) => {
         const option = document.createElement('option');
@@ -272,19 +360,39 @@ const setupPokedle = async () => {
       setPlayable(false);
       attemptCount.textContent = `${attempts.length} tentative${attempts.length > 1 ? 's' : ''}`;
       found.textContent = guess.name;
+      const gained = expEnabled ? addPokeVerseExperience(POKEDLE_BASE_EXP) : 0;
+      expGain.textContent = `${gained} EXP`;
       win.hidden = false;
     }
   });
 
-  newGame.addEventListener('click', () => {
+  start.addEventListener('click', () => {
+    const selected = getSelectedGenerations();
+    if (!selected.length) {
+      error.textContent = 'Sélectionnez au moins une génération.';
+      return;
+    }
+
+    playablePokemon = pokemon.filter((entry) => selected.includes(entry.generation));
+    updateExpStatus();
     startGame();
-    renderSuggestions();
   });
+
+  newGame.addEventListener('click', () => {
+    setPlayable(false);
+    startPanel.hidden = false;
+    win.hidden = true;
+    status.textContent = '';
+  });
+
+  renderGenerationSelection();
+  setPlayable(false);
+  setStartable(false);
 
   try {
     pokemon = await fetchPokedlePokemon();
-    renderSuggestions();
-    startGame();
+    status.textContent = '';
+    setStartable(true);
   } catch {
     status.textContent = 'Erreur PokeAPI';
   }
