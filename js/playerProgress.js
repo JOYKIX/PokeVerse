@@ -25,6 +25,9 @@ const createDefaultPlayerProfile = () => ({
     writtenGamesPlayed: 0,
     multipleChoiceGamesPlayed: 0,
   },
+  pokedexRushStats: {
+    expEarned: 0,
+  },
 });
 
 const normalizePlayerProfile = (profile) => {
@@ -54,6 +57,9 @@ const normalizePlayerProfile = (profile) => {
       expEarned: Number.isFinite(profile?.silhouetteStats?.expEarned) ? profile.silhouetteStats.expEarned : defaults.silhouetteStats.expEarned,
       writtenGamesPlayed: Number.isFinite(profile?.silhouetteStats?.writtenGamesPlayed) ? profile.silhouetteStats.writtenGamesPlayed : defaults.silhouetteStats.writtenGamesPlayed,
       multipleChoiceGamesPlayed: Number.isFinite(profile?.silhouetteStats?.multipleChoiceGamesPlayed) ? profile.silhouetteStats.multipleChoiceGamesPlayed : defaults.silhouetteStats.multipleChoiceGamesPlayed,
+    },
+    pokedexRushStats: {
+      expEarned: Number.isFinite(profile?.pokedexRushStats?.expEarned) ? profile.pokedexRushStats.expEarned : defaults.pokedexRushStats.expEarned,
     },
   };
 };
@@ -110,6 +116,7 @@ function addExperience(amount, source = '') {
 
   if (source === 'pokedle') profile.pokedleStats.expEarned += gained;
   if (source === 'silhouette') profile.silhouetteStats.expEarned += gained;
+  if (source === 'pokedexRush') profile.pokedexRushStats.expEarned += gained;
 
   const saved = savePlayerProfile(profile);
   updateHeaderProfile();

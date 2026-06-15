@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokédex Rush — PokeVerse</title>
+  <meta name="description" content="Pokédex Rush." />
+  <link rel="stylesheet" href="../../css/style.css" />
+  <script src="../../js/playerProgress.js" defer></script>
+  <script src="pokedex-rush.js" defer></script>
+</head>
+<body data-page="pokedex-rush">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+
+  <header class="site-header" data-site-header>
+    <a class="brand" href="../../index.html" aria-label="PokeVerse">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>PokeVerse</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
+      <a href="../../index.html" data-nav-link>Accueil</a>
+      <a href="../../index.html#games" data-nav-link>Jeux</a>
+      <a href="../../profile.html" data-nav-link>Profil</a>
+    </nav>
+  </header>
+
+  <main id="main-content" class="pokedex-rush-page">
+    <section class="pokedex-rush-hero section-band" aria-labelledby="pokedex-rush-title">
+      <h1 id="pokedex-rush-title">Pokédex Rush</h1>
+
+      <div class="pokedex-rush-start" data-rush-start-panel>
+        <fieldset class="pokedex-rush-options" data-rush-options>
+          <legend>Pokédex</legend>
+        </fieldset>
+        <button class="btn btn-primary" type="button" data-rush-start>Commencer</button>
+        <p class="pokedex-rush-error" data-rush-start-error></p>
+      </div>
+
+      <div class="pokedex-rush-game" data-rush-game hidden>
+        <div class="pokedex-rush-summary">
+          <h2 data-rush-title>Pokédex</h2>
+          <p data-rush-progress>0 / 0 complétés</p>
+          <div class="pokedex-rush-bar" aria-label="Progression"><span data-rush-bar></span></div>
+          <p>Temps : <span data-rush-time>00:00</span></p>
+        </div>
+
+        <form class="pokedex-rush-form" data-rush-form autocomplete="off">
+          <label class="sr-only" for="pokedex-rush-search">Pokémon</label>
+          <input id="pokedex-rush-search" class="pokedex-rush-input" type="search" list="pokedex-rush-list" placeholder="Pokémon" data-rush-input />
+          <datalist id="pokedex-rush-list" data-rush-list></datalist>
+          <button class="btn btn-primary" type="submit">Valider</button>
+          <button class="btn btn-ghost" type="button" data-rush-restart>Abandonner / recommencer</button>
+        </form>
+        <p class="pokedex-rush-error" data-rush-error></p>
+      </div>
+
+      <div class="pokedex-rush-win" data-rush-win hidden>
+        <h2>Victoire</h2>
+        <p>Pokédex complété : <span data-rush-win-dex></span></p>
+        <p>Temps total : <span data-rush-win-time></span></p>
+        <p>Pokémon trouvés : <span data-rush-win-found></span></p>
+        <p>EXP totale gagnée : <span data-rush-win-exp></span></p>
+        <a class="btn btn-primary" href="index.html" data-rush-play-again>Rejouer</a>
+        <a class="btn btn-ghost" href="../../index.html">Retour au hub</a>
+      </div>
+    </section>
+
+    <section class="section-block pokedex-rush-results" data-rush-results-section hidden>
+      <div class="pokedex-rush-results-head">
+        <h2>Pokémon trouvés</h2>
+        <p>Restants : <span data-rush-remaining>0</span></p>
+      </div>
+      <div class="pokedex-rush-grid" data-rush-found></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 PokeVerse</p>
+    <a href="../../index.html">Accueil</a>
+  </footer>
+</body>
+</html>

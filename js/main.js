@@ -15,6 +15,14 @@ const games = [
     accent: 'red',
     available: true,
   },
+  {
+    id: 'pokedex-rush',
+    title: 'Pokédex Rush',
+    description: 'Compléter un Pokédex le plus rapidement possible.',
+    href: 'games/pokedex-rush/index.html',
+    accent: 'red',
+    available: true,
+  },
 ];
 
 const isExternalLink = (link) => {
