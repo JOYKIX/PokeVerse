@@ -27,17 +27,40 @@
     </nav>
   </header>
 
-  <main id="main-content" class="placeholder-page">
-    <section class="placeholder-hero section-band">
-      <div>
-        <h1>Pokedle</h1>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="../../index.html#games">Hub</a>
-          <a class="btn btn-ghost" href="../../index.html#all-games">Jeux</a>
-        </div>
+  <main id="main-content" class="pokedle-page">
+    <section class="pokedle-hero section-band" aria-labelledby="pokedle-title">
+      <h1 id="pokedle-title">Pokedle</h1>
+      <form class="pokedle-form" data-pokedle-form autocomplete="off">
+        <label class="sr-only" for="pokedle-search">Pokémon</label>
+        <input id="pokedle-search" class="pokedle-input" type="search" list="pokedle-list" placeholder="Pokémon" data-pokedle-input disabled />
+        <datalist id="pokedle-list" data-pokedle-list></datalist>
+        <button class="btn btn-primary" type="submit" data-pokedle-submit disabled>Valider</button>
+      </form>
+      <p class="pokedle-status" data-pokedle-status>Chargement</p>
+      <div class="pokedle-win" data-pokedle-win hidden>
+        <h2>Victoire</h2>
+        <p><span data-pokedle-attempt-count></span></p>
+        <p><span data-pokedle-found></span></p>
+        <button class="btn btn-primary" type="button" data-pokedle-new>Nouvelle partie</button>
       </div>
-      <div class="coming-card" aria-hidden="true">
-        <span>POKEDLE</span>
+    </section>
+
+    <section class="pokedle-table-section section-block" aria-labelledby="attempts-title">
+      <h2 id="attempts-title">Tentatives</h2>
+      <div class="pokedle-table-wrap">
+        <table class="pokedle-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Type principal</th>
+              <th>Type secondaire</th>
+              <th>Taille</th>
+              <th>Poids</th>
+              <th>Génération</th>
+            </tr>
+          </thead>
+          <tbody data-pokedle-attempts></tbody>
+        </table>
       </div>
     </section>
   </main>
