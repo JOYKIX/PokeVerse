@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quel est ce Pokémon ? — PokeVerse</title>
+  <meta name="description" content="Quel est ce Pokémon ?" />
+  <link rel="stylesheet" href="../../css/style.css" />
+  <script src="../../js/playerProgress.js" defer></script>
+  <script src="quel-est-ce-pokemon.js" defer></script>
+</head>
+<body data-page="quel-est-ce-pokemon">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+
+  <header class="site-header" data-site-header>
+    <a class="brand" href="../../index.html" aria-label="PokeVerse">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>PokeVerse</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
+      <a href="../../index.html" data-nav-link>Accueil</a>
+      <a href="../../index.html#games" data-nav-link>Jeux</a>
+      <a href="../../profile.html" data-nav-link>Profil</a>
+    </nav>
+  </header>
+
+  <main id="main-content" class="silhouette-page">
+    <section class="silhouette-hero section-band" aria-labelledby="silhouette-title">
+      <h1 id="silhouette-title">Quel est ce Pokémon ?</h1>
+      <div class="pokedle-start" data-silhouette-start-panel>
+        <fieldset class="pokedle-generations" data-silhouette-generations>
+          <legend>Sélection des générations</legend>
+        </fieldset>
+        <fieldset class="silhouette-modes">
+          <legend>Mode</legend>
+          <label class="pokedle-generation"><input type="radio" name="silhouette-mode" value="written" checked data-silhouette-mode /> <span>Écrit</span></label>
+          <label class="pokedle-generation"><input type="radio" name="silhouette-mode" value="multiple-choice" data-silhouette-mode /> <span>QCM</span></label>
+        </fieldset>
+        <p class="pokedle-exp" data-silhouette-exp></p>
+        <button class="btn btn-primary" type="button" data-silhouette-start>Commencer la partie</button>
+        <p class="pokedle-error" data-silhouette-error></p>
+      </div>
+
+      <div class="silhouette-game" data-silhouette-game hidden>
+        <div class="silhouette-score">Run : <span data-silhouette-run>0</span></div>
+        <div class="silhouette-frame">
+          <img alt="Silhouette" data-silhouette-image />
+        </div>
+        <form class="pokedle-form" data-silhouette-form autocomplete="off">
+          <label class="sr-only" for="silhouette-search">Pokémon</label>
+          <input id="silhouette-search" class="pokedle-input" type="search" list="silhouette-list" placeholder="Pokémon" data-silhouette-input disabled />
+          <datalist id="silhouette-list" data-silhouette-list></datalist>
+          <button class="btn btn-primary" type="submit" data-silhouette-submit disabled>Valider</button>
+        </form>
+        <div class="silhouette-choices" data-silhouette-choices hidden></div>
+        <p class="pokedle-status" data-silhouette-status>Chargement</p>
+      </div>
+
+      <div class="pokedle-win" data-silhouette-result hidden>
+        <h2>Run finale</h2>
+        <p><span data-silhouette-final-run></span></p>
+        <p><span data-silhouette-answer></span></p>
+        <p><span data-silhouette-exp-gain></span></p>
+        <button class="btn btn-primary" type="button" data-silhouette-new>Nouvelle partie</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 PokeVerse</p>
+    <a href="../../index.html">Accueil</a>
+  </footer>
+</body>
+</html>
