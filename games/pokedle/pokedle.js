@@ -216,9 +216,11 @@ const setupPokedle = async () => {
   const input = document.querySelector('[data-pokedle-input]');
   const list = document.querySelector('[data-pokedle-list]');
   const submit = document.querySelector('[data-pokedle-submit]');
+  const giveUp = document.querySelector('[data-pokedle-give-up]');
   const status = document.querySelector('[data-pokedle-status]');
   const attemptsBody = document.querySelector('[data-pokedle-attempts]');
   const win = document.querySelector('[data-pokedle-win]');
+  const resultTitle = document.querySelector('[data-pokedle-result-title]');
   const attemptCount = document.querySelector('[data-pokedle-attempt-count]');
   const found = document.querySelector('[data-pokedle-found]');
   const expGain = document.querySelector('[data-pokedle-exp-gain]');
@@ -238,6 +240,7 @@ const setupPokedle = async () => {
   const setPlayable = (isPlayable) => {
     input.disabled = !isPlayable;
     submit.disabled = !isPlayable;
+    giveUp.disabled = !isPlayable;
   };
 
   const setStartable = (isStartable) => {
@@ -283,6 +286,7 @@ const setupPokedle = async () => {
     attemptsBody.innerHTML = '';
     input.value = '';
     win.hidden = true;
+    resultTitle.textContent = 'Victoire';
     expGain.textContent = '';
     status.textContent = '';
     error.textContent = '';
@@ -348,6 +352,7 @@ const setupPokedle = async () => {
       const expResult = calculatePokedleExp(playablePokemon.length, pokemon.length, attempts.length);
       const progressResult = addExperience(expResult.exp, 'pokedle');
       recordPokedleGame({ won: true, attempts: attempts.length, exp: 0, countPlayed: false });
+      resultTitle.textContent = 'Victoire';
       attemptCount.textContent = `Tentatives : ${attempts.length}`;
       found.textContent = `Pokémon trouvé : ${guess.name}`;
       expGain.innerHTML = `
@@ -362,6 +367,18 @@ const setupPokedle = async () => {
       `;
       win.hidden = false;
     }
+  });
+
+  giveUp.addEventListener('click', () => {
+    if (!secret) return;
+
+    setPlayable(false);
+    status.textContent = '';
+    resultTitle.textContent = 'Réponse';
+    attemptCount.textContent = `Tentatives : ${attempts.length}`;
+    found.textContent = `Pokémon : ${secret.name}`;
+    expGain.textContent = '';
+    win.hidden = false;
   });
 
   start.addEventListener('click', () => {

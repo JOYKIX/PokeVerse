@@ -44,10 +44,11 @@
         <input id="pokedle-search" class="pokedle-input" type="search" list="pokedle-list" placeholder="Pokémon" data-pokedle-input disabled />
         <datalist id="pokedle-list" data-pokedle-list></datalist>
         <button class="btn btn-primary" type="submit" data-pokedle-submit disabled>Valider</button>
+        <button class="btn btn-ghost" type="button" data-pokedle-give-up disabled>Abandonner</button>
       </form>
       <p class="pokedle-status" data-pokedle-status>Chargement</p>
       <div class="pokedle-win" data-pokedle-win hidden>
-        <h2>Victoire</h2>
+        <h2 data-pokedle-result-title>Victoire</h2>
         <p><span data-pokedle-attempt-count></span></p>
         <p><span data-pokedle-found></span></p>
         <p><span data-pokedle-exp-gain></span></p>
