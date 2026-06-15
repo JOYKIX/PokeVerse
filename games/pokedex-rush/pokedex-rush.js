@@ -1,26 +1,27 @@
 const RUSH_API = 'https://pokeapi.co/api/v2';
-const RUSH_CACHE_KEY = 'pokedex-rush:pokedex:v1';
+const RUSH_CACHE_KEY = 'pokedex-rush:pokedex:v2';
 const RUSH_STATS_KEY = 'pokedex-rush:stats:v1';
 const RUSH_BATCH_SIZE = 32;
 const RUSH_BASE_EXP = 5;
+const RUSH_MEDAL_PREFIX = 'pokedex-rush:';
+const RUSH_MASTER_MEDAL_PREFIX = `${RUSH_MEDAL_PREFIX}master:`;
+const RUSH_ALL_MEDAL = `${RUSH_MEDAL_PREFIX}all-generations`;
 
 const pokedexOptions = [
-  { key: 'kanto', label: 'Kanto', pokedexes: ['kanto'] },
-  { key: 'johto', label: 'Johto', pokedexes: ['original-johto'] },
-  { key: 'hoenn', label: 'Hoenn', pokedexes: ['hoenn'] },
-  { key: 'sinnoh', label: 'Sinnoh', pokedexes: ['original-sinnoh'] },
-  { key: 'unys', label: 'Unys', pokedexes: ['original-unova'] },
-  { key: 'kalos', label: 'Kalos', pokedexes: ['kalos-central', 'kalos-coastal', 'kalos-mountain'] },
-  { key: 'alola', label: 'Alola', pokedexes: ['original-alola'] },
-  { key: 'galar', label: 'Galar', pokedexes: ['galar'] },
-  { key: 'hisui', label: 'Hisui', pokedexes: ['hisui'] },
-  { key: 'paldea', label: 'Paldea', pokedexes: ['paldea'] },
-  { key: 'national', label: 'National', national: true },
+  { key: 'kanto', label: 'Kanto', range: [1, 151], medal: 'Maitre de Kanto' },
+  { key: 'johto', label: 'Johto', range: [152, 251], medal: 'Maitre de Johto' },
+  { key: 'hoenn', label: 'Hoenn', range: [252, 386], medal: 'Maitre de Hoenn' },
+  { key: 'sinnoh', label: 'Sinnoh', range: [387, 493], medal: 'Maitre de Sinnoh' },
+  { key: 'unys', label: 'Unys', range: [494, 649], medal: 'Maitre de Unys' },
+  { key: 'kalos', label: 'Kalos', range: [650, 721], medal: 'Maitre de Kalos' },
+  { key: 'alola', label: 'Alola', range: [722, 809], medal: 'Maitre de Alola' },
+  { key: 'galar', label: 'Galar', range: [810, 905], medal: 'Maitre de Galar' },
+  { key: 'paldea', label: 'Paldea', range: [906, 1025], medal: 'Maitre de Paldea' },
 ];
 
 const pokedexRushMedals = {
-  completion: Object.fromEntries(pokedexOptions.map(({ key }) => [key, null])),
-  time: Object.fromEntries(pokedexOptions.map(({ key }) => [key, { bronze: null, silver: null, gold: null }])),
+  completion: Object.fromEntries(pokedexOptions.map(({ key, medal }) => [key, medal])),
+  allGenerations: 'Le meilleur dresseur',
 };
 
 let state = {
@@ -45,6 +46,8 @@ const formatPokemonName = (name) => name
   .split('-')
   .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
   .join(' ');
+
+const formatDexNumber = (id) => `#${id.toString().padStart(3, '0')}`;
 
 const getFrenchResourceName = (resource, fallback) => (
   resource.names?.find((entry) => entry.language.name === 'fr')?.name ?? fallback
@@ -85,36 +88,25 @@ const writeCache = (cache) => {
   }
 };
 
-const getPokemonFromSpecies = async (speciesEntry) => {
-  const species = speciesEntry.names ? speciesEntry : await fetchJson(speciesEntry.url);
+const getPokemonFromSpecies = async (id) => {
+  const species = await fetchJson(`${RUSH_API}/pokemon-species/${id}`);
+  const frenchName = getFrenchResourceName(species, formatPokemonName(species.name));
   return {
     id: species.id,
+    number: formatDexNumber(species.id),
     key: species.name,
-    name: getFrenchResourceName(species, formatPokemonName(species.name)),
-    aliases: [species.name, getFrenchResourceName(species, formatPokemonName(species.name))].map(normalizeName),
+    name: frenchName,
+    aliases: [species.name, frenchName].map(normalizeName),
   };
-};
-
-const getRegionalPokemon = async (option) => {
-  const entries = new Map();
-  for (const pokedexName of option.pokedexes) {
-    const pokedex = await fetchJson(`${RUSH_API}/pokedex/${pokedexName}`);
-    pokedex.pokemon_entries.forEach((entry) => entries.set(entry.pokemon_species.name, entry.pokemon_species));
-  }
-  return runInBatches([...entries.values()], getPokemonFromSpecies);
-};
-
-const getNationalPokemon = async () => {
-  const list = await fetchJson(`${RUSH_API}/pokemon-species?limit=100000&offset=0`);
-  return runInBatches(list.results, getPokemonFromSpecies);
 };
 
 const getPokedexPokemon = async (option) => {
   const cache = readCache();
   if (Array.isArray(cache[option.key]) && cache[option.key].length) return cache[option.key];
 
-  const pokemon = option.national ? await getNationalPokemon() : await getRegionalPokemon(option);
-  const sorted = pokemon.sort((first, second) => first.id - second.id);
+  const [start, end] = option.range;
+  const ids = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  const sorted = (await runInBatches(ids, getPokemonFromSpecies)).sort((first, second) => first.id - second.id);
   cache[option.key] = sorted;
   writeCache(cache);
   return sorted;
@@ -159,6 +151,20 @@ const awardRushExp = () => {
   return exp;
 };
 
+const awardCompletionMedals = () => {
+  const profile = getPlayerProfile();
+  const medalKey = `${RUSH_MASTER_MEDAL_PREFIX}${state.selectedDex.key}`;
+  if (!profile.medals.includes(medalKey)) profile.medals.push(medalKey);
+
+  const hasAllGenerations = pokedexOptions.every((option) => (
+    profile.medals.includes(`${RUSH_MASTER_MEDAL_PREFIX}${option.key}`)
+  ));
+  if (hasAllGenerations && !profile.medals.includes(RUSH_ALL_MEDAL)) profile.medals.push(RUSH_ALL_MEDAL);
+
+  savePlayerProfile(profile);
+  updateHeaderProfile();
+};
+
 const renderOptions = () => {
   const root = document.querySelector('[data-rush-options]');
   root.innerHTML = '<legend>Pokédex</legend>';
@@ -178,8 +184,12 @@ const updateGame = () => {
   document.querySelector('[data-rush-bar]').style.width = `${percent}%`;
   document.querySelector('[data-rush-remaining]').textContent = total - completed;
   document.querySelector('[data-rush-found]').innerHTML = state.pokemon
-    .filter((pokemon) => state.found.has(pokemon.key))
-    .map((pokemon) => `<span>${pokemon.name}</span>`)
+    .map((pokemon) => `
+      <tr class="${state.found.has(pokemon.key) ? 'is-found' : ''}">
+        <td>${pokemon.number}</td>
+        <td>${state.found.has(pokemon.key) ? pokemon.name : ''}</td>
+      </tr>
+    `)
     .join('');
 };
 
@@ -207,6 +217,7 @@ const finishGame = () => {
   dexStats.bestRunFound = state.pokemon.map((pokemon) => pokemon.key);
   if (dexStats.bestTime === null || elapsed < dexStats.bestTime) dexStats.bestTime = elapsed;
   saveStats(stats);
+  awardCompletionMedals();
 
   document.querySelector('[data-rush-game]').hidden = true;
   document.querySelector('[data-rush-results-section]').hidden = true;

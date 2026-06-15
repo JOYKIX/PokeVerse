@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PokeVerse</title>
-  <meta name="description" content="Hub de jeux Pokémon." />
+  <title>Médailles — PokeVerse</title>
+  <meta name="description" content="Médailles PokeVerse." />
   <link rel="stylesheet" href="css/style.css" />
   <script src="js/playerProgress.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
-<body data-page="home">
+<body data-page="medals">
   <a class="skip-link" href="#main-content">Aller au contenu</a>
 
   <header class="site-header" data-site-header>
@@ -23,24 +23,22 @@
     </button>
     <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
       <a href="index.html" data-nav-link>Accueil</a>
-      <a href="#games" data-nav-link>Jeux</a>
+      <a href="index.html#games" data-nav-link>Jeux</a>
       <a href="profile.html" data-nav-link>Profil</a>
       <a href="medals.html" data-nav-link>Médailles</a>
     </nav>
   </header>
 
-  <main id="main-content">
-    <section class="section-block games-section" id="games" aria-labelledby="games-title">
-      <div class="section-heading">
-        <h1 id="games-title">Jeux</h1>
-      </div>
-      <div class="games-grid" data-games-grid></div>
+  <main id="main-content" data-medals-page>
+    <section class="medals-page section-block" aria-labelledby="medals-title">
+      <h1 id="medals-title">Médailles</h1>
+      <ul class="medals-list" data-medals-list></ul>
     </section>
   </main>
 
   <footer class="site-footer">
     <p>© 2026 PokeVerse</p>
-    <a href="#main-content">Haut</a>
+    <a href="index.html">Accueil</a>
   </footer>
 </body>
 </html>
