@@ -36,7 +36,7 @@ const setupNavigation = () => {
 };
 
 const POKEDLE_API = 'https://pokeapi.co/api/v2';
-const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v3';
+const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v4';
 const POKEDLE_BATCH_SIZE = 24;
 
 const generationLabels = {
@@ -151,6 +151,8 @@ const fetchPokedlePokemon = async () => {
   const list = await fetchJson(`${POKEDLE_API}/pokemon?limit=100000&offset=0`);
   const pokemon = await runInBatches(list.results, async ({ name, url }) => {
     const detail = await fetchJson(url);
+    if (!detail.is_default) return null;
+
     const species = await fetchJson(detail.species.url);
     const generationName = species.generation.name;
     if (!generationLabels[generationName]) return null;
@@ -158,7 +160,7 @@ const fetchPokedlePokemon = async () => {
     const evolutionChain = await getEvolutionChain(species.evolution_chain.url);
 
     return {
-      id: detail.id,
+      id: species.id,
       key: detail.name,
       name: getFrenchResourceName(species, formatPokemonName(detail.name)),
       primaryType: detail.types[0]?.type.name ?? 'none',
