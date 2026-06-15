@@ -36,20 +36,45 @@ const setupNavigation = () => {
 };
 
 const POKEDLE_API = 'https://pokeapi.co/api/v2';
-const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v1';
+const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v2';
 const POKEDLE_BATCH_SIZE = 24;
 
 const generationLabels = {
-  'generation-i': 'Generation I',
-  'generation-ii': 'Generation II',
-  'generation-iii': 'Generation III',
-  'generation-iv': 'Generation IV',
-  'generation-v': 'Generation V',
-  'generation-vi': 'Generation VI',
-  'generation-vii': 'Generation VII',
-  'generation-viii': 'Generation VIII',
-  'generation-ix': 'Generation IX',
+  'generation-i': 'Génération I',
+  'generation-ii': 'Génération II',
+  'generation-iii': 'Génération III',
+  'generation-iv': 'Génération IV',
+  'generation-v': 'Génération V',
+  'generation-vi': 'Génération VI',
+  'generation-vii': 'Génération VII',
+  'generation-viii': 'Génération VIII',
+  'generation-ix': 'Génération IX',
 };
+
+const typeLabels = {
+  bug: 'Insecte',
+  dark: 'Ténèbres',
+  dragon: 'Dragon',
+  electric: 'Électrik',
+  fairy: 'Fée',
+  fighting: 'Combat',
+  fire: 'Feu',
+  flying: 'Vol',
+  ghost: 'Spectre',
+  grass: 'Plante',
+  ground: 'Sol',
+  ice: 'Glace',
+  normal: 'Normal',
+  poison: 'Poison',
+  psychic: 'Psy',
+  rock: 'Roche',
+  steel: 'Acier',
+  water: 'Eau',
+};
+
+const getFrenchResourceName = (resource, fallback) => (
+  resource.names?.find((entry) => entry.language.name === 'fr')?.name ?? fallback
+);
 
 const formatPokemonName = (name) => name
   .split('-')
@@ -112,7 +137,7 @@ const fetchPokedlePokemon = async () => {
     return {
       id: detail.id,
       key: detail.name,
-      name: formatPokemonName(detail.name),
+      name: getFrenchResourceName(species, formatPokemonName(detail.name)),
       primaryType: detail.types[0]?.type.name ?? 'none',
       secondaryType: detail.types[1]?.type.name ?? null,
       height: detail.height,
@@ -202,12 +227,12 @@ const setupPokedle = async () => {
 
   const addAttemptRow = (guess) => {
     const row = document.createElement('tr');
-    const secondaryGuess = guess.secondaryType ?? 'None';
-    const secondarySecret = secret.secondaryType ?? 'None';
+    const secondaryGuess = guess.secondaryType ?? 'none';
+    const secondarySecret = secret.secondaryType ?? 'none';
     const cells = [
       compareText(guess.key, secret.key, () => guess.name),
-      compareText(guess.primaryType, secret.primaryType, formatPokemonName),
-      compareText(secondaryGuess, secondarySecret, (value) => value === 'None' ? 'None' : formatPokemonName(value)),
+      compareText(guess.primaryType, secret.primaryType, (value) => typeLabels[value] ?? formatPokemonName(value)),
+      compareText(secondaryGuess, secondarySecret, (value) => value === 'none' ? 'Aucun' : typeLabels[value] ?? formatPokemonName(value)),
       compareNumber(guess.height, secret.height, formatDecimal),
       compareNumber(guess.weight, secret.weight, formatDecimal),
       compareNumber(guess.generationOrder, secret.generationOrder, () => generationLabels[guess.generation]),
