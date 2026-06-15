@@ -240,9 +240,12 @@ const setupSilhouetteGame = async () => {
 
   const nextPokemon = () => {
     const available = playablePokemon.filter((entry) => !previousKeys.includes(entry.key));
-    if (!available.length) previousKeys = [];
-    const pool = available.length ? available : playablePokemon;
-    secret = pickRandom(pool);
+    if (!available.length) {
+      endRun(true);
+      return;
+    }
+
+    secret = pickRandom(available);
     previousKeys.push(secret.key);
     image.src = secret.image;
     runOutput.textContent = run;
@@ -261,7 +264,7 @@ const setupSilhouetteGame = async () => {
     }
   };
 
-  const endRun = () => {
+  const endRun = (isCompleted = false) => {
     setWrittenPlayable(false);
     choices.querySelectorAll('button').forEach((button) => { button.disabled = true; });
     const generationMultiplier = pokemon.length ? playablePokemon.length / pokemon.length : 0;
@@ -274,7 +277,7 @@ const setupSilhouetteGame = async () => {
 
     game.hidden = true;
     finalRun.textContent = run;
-    answer.textContent = `Pokémon : ${secret.name}`;
+    answer.textContent = isCompleted ? '' : `Pokémon : ${secret.name}`;
     expGain.innerHTML = `
       <span>Générations : ${currentSelection.map((generation) => generationLabels[generation]).join(', ')}</span>
       <span>Pool : ${playablePokemon.length} Pokémon</span>
@@ -295,6 +298,12 @@ const setupSilhouetteGame = async () => {
 
     run += 1;
     runOutput.textContent = run;
+
+    if (run >= playablePokemon.length) {
+      endRun(true);
+      return;
+    }
+
     nextPokemon();
   }
 
