@@ -1,22 +1,22 @@
 :root {
-  --red: #d90429;
-  --red-600: #b80020;
+  --red: #e31937;
+  --red-600: #c9102c;
   --red-700: #8f0018;
   --black: #08090d;
   --ink: #171923;
   --ink-2: #2a2d38;
   --muted: #717480;
-  --line: #e2e4ea;
-  --paper: #f4f5f8;
+  --line: #e5e5e8;
+  --paper: #f7f7f9;
   --white: #ffffff;
-  --body-glow: rgba(217, 4, 41, .12);
+  --body-glow: rgba(227,25,55,.15);
   --body-start: #ffffff;
-  --body-end: #e9ebf1;
-  --header-end: #250009;
-  --grid-line: rgba(8, 9, 13, .035);
-  --panel-bg: rgba(255,255,255,.92);
-  --soft-surface: #f7f8fb;
-  --input-border: #d5d8e1;
+  --body-end: #eceef4;
+  --header-end: #2b0008;
+  --grid-line: rgba(8,9,13,.035);
+  --panel-bg: rgba(255,255,255,.94);
+  --soft-surface: #f8f8fa;
+  --input-border: #d7d9df;
   --scrollbar-track: #eceef4;
   --scrollbar-thumb: #b9bdc9;
   --success: #139b5f;
@@ -635,5 +635,6 @@ body.is-loading-route main {
   border-radius: 50%;
   background:
     radial-gradient(circle, var(--preview-paper) 0 15%, var(--preview-secondary) 16% 24%, transparent 25%),
+    linear-gradient(115deg, transparent 0 18%, var(--preview-accent) 19% 32%, transparent 33% 67%, var(--preview-accent) 68% 81%, transparent 82%),
     linear-gradient(var(--preview-primary) 0 48%, var(--preview-secondary) 48% 56%, var(--preview-paper) 56%);
 }
