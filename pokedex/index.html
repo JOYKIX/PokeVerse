@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokédex — PokeVerse</title>
+  <meta name="description" content="Pokédex" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <script src="../js/themes.js" defer></script>
+  <script src="../js/playerProgress.js" defer></script>
+  <script src="../js/pokeapi.js" defer></script>
+  <script src="../js/main.js" defer></script>
+  <script src="../js/pokedex.js" defer></script>
+</head>
+<body data-page="pokedex">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+
+  <header class="site-header" data-site-header>
+    <a class="brand" href="../index.html" aria-label="PokeVerse">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>PokeVerse</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
+      <a href="../index.html" data-nav-link>Accueil</a>
+      <a href="../index.html#games" data-nav-link>Jeux</a>
+      <a href="../pokedex/" data-nav-link>Pokédex</a>
+      <a href="../profile.html" data-nav-link>Profil</a>
+      <a href="../medals.html" data-nav-link>Médailles</a>
+    </nav>
+  </header>
+
+  <main id="main-content" class="pokedex-page">
+    <section class="pokedex-hero section-band" aria-labelledby="pokedex-title">
+      <h1 id="pokedex-title">Pokédex</h1>
+      <form class="pokedex-search" data-pokedex-form autocomplete="off">
+        <label class="sr-only" for="pokedex-search">Pokémon</label>
+        <input id="pokedex-search" type="search" list="pokedex-list" placeholder="Pokémon" data-pokedex-input />
+        <datalist id="pokedex-list" data-pokedex-list></datalist>
+        <button class="btn btn-primary" type="submit">Rechercher</button>
+      </form>
+      <p class="pokedex-status" data-pokedex-status>Chargement</p>
+    </section>
+
+    <section class="pokedex-details section-block" data-pokedex-details hidden>
+      <div class="pokedex-profile">
+        <div class="pokedex-art">
+          <img alt="" data-pokedex-image />
+        </div>
+        <div>
+          <p class="pokedex-number" data-pokedex-number></p>
+          <h2 data-pokedex-name></h2>
+          <div class="pokedex-types" data-pokedex-types></div>
+          <button class="btn btn-primary" type="button" data-pokedex-cry>Écouter le cri</button>
+          <audio data-pokedex-audio></audio>
+        </div>
+      </div>
+      <div class="pokedex-stats" data-pokedex-stats></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 PokeVerse</p>
+    <a href="../index.html">Accueil</a>
+  </footer>
+</body>
+</html>
