@@ -42,6 +42,7 @@ const routeInitializers = {
   home: () => renderGames(),
   profile: () => setupProfilePage(),
   medals: () => setupMedalsPage(),
+  pokedex: () => window.PokeVersePokedex?.setupPokedex?.(),
   pokedle: () => window.PokeVerseGames?.setupPokedle?.(),
   'quel-est-ce-pokemon': () => window.PokeVerseGames?.setupSilhouetteGame?.(),
   'pokedex-rush': () => window.PokeVerseGames?.setupPokedexRush?.(),
@@ -60,6 +61,7 @@ const toAppUrl = (href) => new URL(href, basePath);
 const pageKeyFromPath = (pathname) => {
   if (pathname.endsWith('/profile.html')) return 'profile';
   if (pathname.endsWith('/medals.html')) return 'medals';
+  if (pathname.endsWith('/pokedex/') || pathname.endsWith('/pokedex/index.html')) return 'pokedex';
   const game = games.find((entry) => toAppUrl(entry.href).pathname === pathname);
   return game?.id ?? 'home';
 };

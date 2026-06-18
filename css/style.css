@@ -638,3 +638,29 @@ body.is-loading-route main {
     linear-gradient(115deg, transparent 0 18%, var(--preview-accent) 19% 32%, transparent 33% 67%, var(--preview-accent) 68% 81%, transparent 82%),
     linear-gradient(var(--preview-primary) 0 48%, var(--preview-secondary) 48% 56%, var(--preview-paper) 56%);
 }
+
+.pokedex-page { display: grid; gap: 1rem; min-height: calc(100vh - 190px); }
+.pokedex-hero { padding: clamp(1.2rem, 4vw, 3.2rem); }
+.pokedex-search { display: flex; flex-wrap: wrap; gap: .75rem; max-width: 820px; }
+.pokedex-search input { flex: 1 1 280px; }
+.pokedex-status { min-height: 1.5rem; margin: 1rem 0 0; color: var(--muted); font-weight: 850; }
+.pokedex-details { display: grid; gap: 1.4rem; }
+.pokedex-details[hidden] { display: none; }
+.pokedex-profile { display: grid; grid-template-columns: minmax(180px, 320px) 1fr; gap: clamp(1rem, 4vw, 2rem); align-items: center; }
+.pokedex-art { display: grid; place-items: center; min-height: 280px; background: var(--white); border: 1px solid #dde0e8; border-radius: var(--radius-xl); }
+.pokedex-art img { width: min(66vw, 280px); height: min(66vw, 280px); object-fit: contain; }
+.pokedex-number { margin-bottom: .45rem; color: var(--muted); font-weight: 950; }
+.pokedex-types { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+.pokedex-types span { padding: .55rem .85rem; color: var(--white); background: var(--black); border-radius: 999px; font-weight: 950; }
+.pokedex-stats { display: grid; gap: .7rem; }
+.pokedex-stat { display: grid; grid-template-columns: minmax(120px, 1fr) 3.5rem minmax(150px, 2fr); gap: .75rem; align-items: center; padding: .85rem; background: var(--soft-surface); border: 1px solid #e7e9f0; border-radius: 16px; font-weight: 900; }
+.pokedex-stat strong { text-align: right; }
+.pokedex-stat-bar { height: 12px; overflow: hidden; background: #e5e8ef; border-radius: 999px; }
+.pokedex-stat-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--red), #ff4d5f); border-radius: inherit; }
+
+@media (max-width: 860px) {
+  .pokedex-search .btn { width: 100%; }
+  .pokedex-profile { grid-template-columns: 1fr; }
+  .pokedex-stat { grid-template-columns: 1fr auto; }
+  .pokedex-stat-bar { grid-column: 1 / -1; }
+}
