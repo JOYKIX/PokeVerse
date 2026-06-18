@@ -35,8 +35,6 @@ const setupNavigation = () => {
   });
 };
 
-const POKEDLE_API = 'https://pokeapi.co/api/v2';
-const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v4';
 const POKEDLE_BATCH_SIZE = 24;
 
 const generationLabels = {
@@ -83,30 +81,9 @@ const formatPokemonName = (name) => name
   .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
   .join(' ');
 
+const getPokemonIdFromUrl = (url) => Number(url.match(/\/(\d+)\/?$/)?.[1]);
+
 const formatDecimal = (value) => Number((value / 10).toFixed(1)).toString();
-
-const readPokedleCache = () => {
-  try {
-    const cached = JSON.parse(localStorage.getItem(POKEDLE_CACHE_KEY));
-    return Array.isArray(cached?.pokemon) && cached.pokemon.length ? cached.pokemon : null;
-  } catch {
-    return null;
-  }
-};
-
-const writePokedleCache = (pokemon) => {
-  try {
-    localStorage.setItem(POKEDLE_CACHE_KEY, JSON.stringify({ cachedAt: Date.now(), pokemon }));
-  } catch {
-    localStorage.removeItem(POKEDLE_CACHE_KEY);
-  }
-};
-
-const fetchJson = async (url) => {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('PokeAPI');
-  return response.json();
-};
 
 const runInBatches = async (items, worker, batchSize = POKEDLE_BATCH_SIZE) => {
   const results = [];
@@ -139,25 +116,22 @@ const findEvolutionStage = (chain, speciesName, stage = 1) => {
 const formatEvolutionStage = (stage) => `Stade ${stage}`;
 
 const fetchPokedlePokemon = async () => {
-  const cached = readPokedleCache();
+  const cached = PokeApiCache.getCachedData('pokeverse_game_pokedle_pokemon');
   if (cached) return cached;
 
-  const evolutionChains = new Map();
-  const getEvolutionChain = async (url) => {
-    if (!evolutionChains.has(url)) evolutionChains.set(url, fetchJson(url));
-    return evolutionChains.get(url);
-  };
-
-  const list = await fetchJson(`${POKEDLE_API}/pokemon?limit=100000&offset=0`);
+  const list = await PokeApiCache.getPokemonList();
   const pokemon = await runInBatches(list.results, async ({ name, url }) => {
-    const detail = await fetchJson(url);
+    const id = getPokemonIdFromUrl(url);
+    if (!id) return null;
+
+    const detail = await PokeApiCache.getPokemon(id);
     if (!detail.is_default) return null;
 
-    const species = await fetchJson(detail.species.url);
+    const species = await PokeApiCache.getPokemonSpecies(detail.id);
     const generationName = species.generation.name;
     if (!generationLabels[generationName]) return null;
 
-    const evolutionChain = await getEvolutionChain(species.evolution_chain.url);
+    const evolutionChain = await PokeApiCache.getEvolutionChainFromSpecies(species);
 
     return {
       id: species.id,
@@ -174,7 +148,7 @@ const fetchPokedlePokemon = async () => {
   });
 
   const sorted = pokemon.sort((first, second) => first.id - second.id);
-  writePokedleCache(sorted);
+  PokeApiCache.setCachedData('pokeverse_game_pokedle_pokemon', sorted);
   return sorted;
 };
 

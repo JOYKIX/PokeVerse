@@ -1,5 +1,3 @@
-const POKECRY_API = 'https://pokeapi.co/api/v2';
-const POKECRY_CACHE_KEY = 'pokecry:pokemon:v1';
 const POKECRY_BATCH_SIZE = 32;
 const POKECRY_WRITTEN_MODE = 'written';
 const POKECRY_MULTIPLE_CHOICE_MODE = 'multiple-choice';
@@ -36,28 +34,7 @@ const formatPokemonName = (name) => name
   .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
   .join(' ');
 
-const readPokemonCache = () => {
-  try {
-    const cached = JSON.parse(localStorage.getItem(POKECRY_CACHE_KEY));
-    return Array.isArray(cached?.pokemon) && cached.pokemon.length ? cached.pokemon : null;
-  } catch {
-    return null;
-  }
-};
-
-const writePokemonCache = (pokemon) => {
-  try {
-    localStorage.setItem(POKECRY_CACHE_KEY, JSON.stringify({ cachedAt: Date.now(), pokemon }));
-  } catch {
-    localStorage.removeItem(POKECRY_CACHE_KEY);
-  }
-};
-
-const fetchJson = async (url) => {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('PokeAPI');
-  return response.json();
-};
+const getPokemonIdFromUrl = (url) => Number(url.match(/\/(\d+)\/?$/)?.[1]);
 
 const runInBatches = async (items, worker, batchSize = POKECRY_BATCH_SIZE) => {
   const results = [];
@@ -72,15 +49,18 @@ const runInBatches = async (items, worker, batchSize = POKECRY_BATCH_SIZE) => {
 };
 
 const fetchPokeCryPokemon = async () => {
-  const cached = readPokemonCache();
+  const cached = PokeApiCache.getCachedData('pokeverse_game_pokecry_pokemon');
   if (cached) return cached;
 
-  const list = await fetchJson(`${POKECRY_API}/pokemon?limit=100000&offset=0`);
+  const list = await PokeApiCache.getPokemonList();
   const pokemon = await runInBatches(list.results, async ({ name, url }) => {
-    const detail = await fetchJson(url);
+    const id = getPokemonIdFromUrl(url);
+    if (!id) return null;
+
+    const detail = await PokeApiCache.getPokemon(id);
     if (!detail.is_default || !detail.cries?.latest) return null;
 
-    const species = await fetchJson(detail.species.url);
+    const species = await PokeApiCache.getPokemonSpecies(detail.id);
     const generation = species.generation.name;
     if (!pokecryGenerationLabels[generation]) return null;
 
@@ -96,7 +76,7 @@ const fetchPokeCryPokemon = async () => {
   });
 
   const sorted = pokemon.sort((first, second) => first.id - second.id);
-  writePokemonCache(sorted);
+  PokeApiCache.setCachedData('pokeverse_game_pokecry_pokemon', sorted);
   return sorted;
 };
 
