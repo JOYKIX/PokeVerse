@@ -35,9 +35,9 @@ const setupNavigation = () => {
   });
 };
 
-const SILHOUETTE_API = 'https://pokeapi.co/api/v2';
+const { fetchJson, runInBatches, pokemonIds } = window.PokeVersePokeApi;
 const SILHOUETTE_CACHE_KEY = 'silhouette:pokemon:v1';
-const SILHOUETTE_BATCH_SIZE = 32;
+const SILHOUETTE_BATCH_SIZE = 64;
 const WRITTEN_MODE = 'written';
 const MULTIPLE_CHOICE_MODE = 'multiple-choice';
 
@@ -81,31 +81,12 @@ const writePokemonCache = (pokemon) => {
   }
 };
 
-const fetchJson = async (url) => {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('PokeAPI');
-  return response.json();
-};
-
-const runInBatches = async (items, worker, batchSize = SILHOUETTE_BATCH_SIZE) => {
-  const results = [];
-  for (let index = 0; index < items.length; index += batchSize) {
-    const batch = items.slice(index, index + batchSize);
-    const settled = await Promise.allSettled(batch.map(worker));
-    settled.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value) results.push(result.value);
-    });
-  }
-  return results;
-};
-
 const fetchSilhouettePokemon = async () => {
   const cached = readPokemonCache();
   if (cached) return cached;
 
-  const list = await fetchJson(`${SILHOUETTE_API}/pokemon?limit=100000&offset=0`);
-  const pokemon = await runInBatches(list.results, async ({ name, url }) => {
-    const detail = await fetchJson(url);
+  const pokemon = await runInBatches(pokemonIds(), async (id) => {
+    const detail = await fetchJson(`/pokemon/${id}`);
     if (!detail.is_default) return null;
 
     const species = await fetchJson(detail.species.url);

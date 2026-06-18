@@ -1,7 +1,7 @@
-const RUSH_API = 'https://pokeapi.co/api/v2';
+const { fetchJson, runInBatches } = window.PokeVersePokeApi;
 const RUSH_CACHE_KEY = 'pokedex-rush:pokedex:v2';
 const RUSH_STATS_KEY = 'pokedex-rush:stats:v1';
-const RUSH_BATCH_SIZE = 32;
+const RUSH_BATCH_SIZE = 64;
 const RUSH_BASE_EXP = 5;
 const RUSH_MEDAL_PREFIX = 'pokedex-rush:';
 const RUSH_MASTER_MEDAL_PREFIX = `${RUSH_MEDAL_PREFIX}master:`;
@@ -53,24 +53,6 @@ const getFrenchResourceName = (resource, fallback) => (
   resource.names?.find((entry) => entry.language.name === 'fr')?.name ?? fallback
 );
 
-const fetchJson = async (url) => {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('PokeAPI');
-  return response.json();
-};
-
-const runInBatches = async (items, worker, batchSize = RUSH_BATCH_SIZE) => {
-  const results = [];
-  for (let index = 0; index < items.length; index += batchSize) {
-    const batch = items.slice(index, index + batchSize);
-    const settled = await Promise.allSettled(batch.map(worker));
-    settled.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value) results.push(result.value);
-    });
-  }
-  return results;
-};
-
 const readCache = () => {
   try {
     const cache = JSON.parse(localStorage.getItem(RUSH_CACHE_KEY));
@@ -89,7 +71,7 @@ const writeCache = (cache) => {
 };
 
 const getPokemonFromSpecies = async (id) => {
-  const species = await fetchJson(`${RUSH_API}/pokemon-species/${id}`);
+  const species = await fetchJson(`/pokemon-species/${id}`);
   const frenchName = getFrenchResourceName(species, formatPokemonName(species.name));
   return {
     id: species.id,
@@ -253,7 +235,7 @@ const submitPokemon = (event) => {
     if (exists) {
       error.textContent = 'Hors Pokédex.';
     } else {
-      fetchJson(`${RUSH_API}/pokemon-species/${value}`)
+      fetchJson(`/pokemon-species/${value}`)
         .then(() => { error.textContent = 'Hors Pokédex.'; })
         .catch(() => { error.textContent = 'Introuvable.'; });
       error.textContent = 'Introuvable.';

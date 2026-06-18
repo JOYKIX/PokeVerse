@@ -35,9 +35,9 @@ const setupNavigation = () => {
   });
 };
 
-const POKEDLE_API = 'https://pokeapi.co/api/v2';
+const { fetchJson, runInBatches, pokemonIds } = window.PokeVersePokeApi;
 const POKEDLE_CACHE_KEY = 'pokedle:pokemon:v4';
-const POKEDLE_BATCH_SIZE = 24;
+const POKEDLE_BATCH_SIZE = 64;
 
 const generationLabels = {
   'generation-i': 'Génération I',
@@ -102,24 +102,6 @@ const writePokedleCache = (pokemon) => {
   }
 };
 
-const fetchJson = async (url) => {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('PokeAPI');
-  return response.json();
-};
-
-const runInBatches = async (items, worker, batchSize = POKEDLE_BATCH_SIZE) => {
-  const results = [];
-  for (let index = 0; index < items.length; index += batchSize) {
-    const batch = items.slice(index, index + batchSize);
-    const settled = await Promise.allSettled(batch.map(worker));
-    settled.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value) results.push(result.value);
-    });
-  }
-  return results;
-};
-
 const getGenerationOrder = (generationName) => {
   const order = Object.keys(generationLabels).indexOf(generationName);
   return order + 1;
@@ -148,9 +130,8 @@ const fetchPokedlePokemon = async () => {
     return evolutionChains.get(url);
   };
 
-  const list = await fetchJson(`${POKEDLE_API}/pokemon?limit=100000&offset=0`);
-  const pokemon = await runInBatches(list.results, async ({ name, url }) => {
-    const detail = await fetchJson(url);
+  const pokemon = await runInBatches(pokemonIds(), async (id) => {
+    const detail = await fetchJson(`/pokemon/${id}`);
     if (!detail.is_default) return null;
 
     const species = await fetchJson(detail.species.url);
