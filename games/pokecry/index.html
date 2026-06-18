@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokeCry — PokeVerse</title>
+  <meta name="description" content="PokeCry" />
+  <link rel="stylesheet" href="../../css/style.css" />
+  <script src="../../js/playerProgress.js" defer></script>
+  <script src="pokecry.js" defer></script>
+</head>
+<body data-page="pokecry">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+
+  <header class="site-header" data-site-header>
+    <a class="brand" href="../../index.html" aria-label="PokeVerse">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>PokeVerse</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
+      <a href="../../index.html" data-nav-link>Accueil</a>
+      <a href="../../index.html#games" data-nav-link>Jeux</a>
+      <a href="../../profile.html" data-nav-link>Profil</a>
+    </nav>
+  </header>
+
+  <main id="main-content" class="pokecry-page">
+    <section class="pokecry-hero section-band" aria-labelledby="pokecry-title">
+      <h1 id="pokecry-title">PokeCry</h1>
+      <div class="pokedle-start" data-pokecry-start-panel>
+        <fieldset class="pokedle-generations" data-pokecry-generations>
+          <legend>Sélection des générations</legend>
+        </fieldset>
+        <fieldset class="silhouette-modes">
+          <legend>Mode</legend>
+          <label class="pokedle-generation"><input type="radio" name="pokecry-mode" value="written" checked data-pokecry-mode /> <span>Écrit</span></label>
+          <label class="pokedle-generation"><input type="radio" name="pokecry-mode" value="multiple-choice" data-pokecry-mode /> <span>QCM</span></label>
+        </fieldset>
+        <p class="pokedle-exp" data-pokecry-exp></p>
+        <button class="btn btn-primary" type="button" data-pokecry-start>Commencer la partie</button>
+        <p class="pokedle-error" data-pokecry-error></p>
+      </div>
+
+      <div class="pokecry-game" data-pokecry-game hidden>
+        <div class="silhouette-score">Run : <span data-pokecry-run>0</span></div>
+        <button class="pokecry-play btn btn-primary" type="button" data-pokecry-play>Écouter</button>
+        <audio data-pokecry-audio></audio>
+        <form class="pokedle-form" data-pokecry-form autocomplete="off">
+          <label class="sr-only" for="pokecry-search">Pokémon</label>
+          <input id="pokecry-search" class="pokedle-input" type="search" list="pokecry-list" placeholder="Pokémon" data-pokecry-input disabled />
+          <datalist id="pokecry-list" data-pokecry-list></datalist>
+          <button class="btn btn-primary" type="submit" data-pokecry-submit disabled>Valider</button>
+        </form>
+        <div class="silhouette-choices" data-pokecry-choices hidden></div>
+        <p class="pokedle-status" data-pokecry-status>Chargement</p>
+      </div>
+
+      <div class="pokedle-win" data-pokecry-result hidden>
+        <h2>Run finale</h2>
+        <p><span data-pokecry-final-run></span></p>
+        <p><span data-pokecry-answer></span></p>
+        <p><span data-pokecry-exp-gain></span></p>
+        <button class="btn btn-primary" type="button" data-pokecry-new>Nouvelle partie</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 PokeVerse</p>
+    <a href="../../index.html">Accueil</a>
+  </footer>
+</body>
+</html>

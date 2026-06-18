@@ -585,3 +585,9 @@ dd { margin: 0; font-size: 1.35rem; font-weight: 950; }
 .medals-page { min-height: calc(100vh - 190px); }
 .medals-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .7rem; margin: 0; padding: 0; list-style: none; }
 .medals-list li { padding: 1rem; background: var(--white); border: 1px solid #e7e9f0; border-radius: var(--radius-md); font-weight: 950; }
+
+.pokecry-page { display: grid; gap: 1rem; min-height: calc(100vh - 190px); }
+.pokecry-hero { padding: clamp(1.2rem, 4vw, 3.2rem); }
+.pokecry-game { display: grid; gap: 1rem; }
+.pokecry-play { justify-self: start; min-width: 170px; }
+.pokecry-game[hidden] { display: none; }
