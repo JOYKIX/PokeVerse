@@ -339,9 +339,14 @@ const setupPokeCryGame = async () => {
   }
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  setupNavigation();
-  updateHeaderProfile();
-  setupPokeCryGame();
-  document.body.classList.add('is-loaded');
-});
+window.PokeVerseGames = window.PokeVerseGames || {};
+window.PokeVerseGames.setupPokeCryGame = setupPokeCryGame;
+
+if (!window.PokeVerseSpa) {
+  window.addEventListener('DOMContentLoaded', () => {
+    setupNavigation();
+    updateHeaderProfile();
+    setupPokeCryGame();
+    document.body.classList.add('is-loaded');
+  });
+}

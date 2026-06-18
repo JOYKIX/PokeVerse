@@ -398,9 +398,14 @@ const setupPokedle = async () => {
   }
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  setupNavigation();
-  updateHeaderProfile();
-  setupPokedle();
-  document.body.classList.add('is-loaded');
-});
+window.PokeVerseGames = window.PokeVerseGames || {};
+window.PokeVerseGames.setupPokedle = setupPokedle;
+
+if (!window.PokeVerseSpa) {
+  window.addEventListener('DOMContentLoaded', () => {
+    setupNavigation();
+    updateHeaderProfile();
+    setupPokedle();
+    document.body.classList.add('is-loaded');
+  });
+}

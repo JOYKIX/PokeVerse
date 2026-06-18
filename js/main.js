@@ -1,3 +1,5 @@
+window.PokeVerseSpa = true;
+
 const games = [
   {
     id: 'pokedle',
@@ -33,15 +35,33 @@ const games = [
   },
 ];
 
+const loadedScripts = new Set(Array.from(document.scripts).map((script) => new URL(script.src || window.location.href, window.location.href).href));
+const basePath = `${window.location.origin}${window.location.pathname.slice(0, window.location.pathname.lastIndexOf('/') + 1)}`;
+
+const routeInitializers = {
+  home: () => renderGames(),
+  profile: () => setupProfilePage(),
+  medals: () => setupMedalsPage(),
+  pokedle: () => window.PokeVerseGames?.setupPokedle?.(),
+  'quel-est-ce-pokemon': () => window.PokeVerseGames?.setupSilhouetteGame?.(),
+  'pokedex-rush': () => window.PokeVerseGames?.setupPokedexRush?.(),
+  pokecry: () => window.PokeVerseGames?.setupPokeCryGame?.(),
+};
+
 const isExternalLink = (link) => {
   const url = new URL(link.href, window.location.href);
   return url.origin !== window.location.origin;
 };
 
-const normalizeGameHref = (href) => {
-  const isNestedPage = window.location.pathname.includes('/games/');
-  if (!isNestedPage || href.startsWith('#') || href.startsWith('http')) return href;
-  return href.startsWith('games/') ? `../../${href}` : href;
+const normalizeGameHref = (href) => href;
+
+const toAppUrl = (href) => new URL(href, basePath);
+
+const pageKeyFromPath = (pathname) => {
+  if (pathname.endsWith('/profile.html')) return 'profile';
+  if (pathname.endsWith('/medals.html')) return 'medals';
+  const game = games.find((entry) => toAppUrl(entry.href).pathname === pathname);
+  return game?.id ?? 'home';
 };
 
 const createGameCard = (game, compact = false) => {
@@ -63,8 +83,73 @@ const createGameCard = (game, compact = false) => {
 
 const renderGames = () => {
   const grid = document.querySelector('[data-games-grid]');
+  if (!grid || grid.dataset.rendered === 'true') return;
+  games.forEach((game) => grid.appendChild(createGameCard(game, true)));
+  grid.dataset.rendered = 'true';
+};
 
-  if (grid) games.forEach((game) => grid.appendChild(createGameCard(game, true)));
+const loadScript = (src) => new Promise((resolve, reject) => {
+  const url = new URL(src, window.location.href).href;
+  if (loadedScripts.has(url)) {
+    resolve();
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = url;
+  if (!url.endsWith('/js/pokeapi.js')) script.type = 'module';
+  script.defer = true;
+  script.onload = () => {
+    loadedScripts.add(url);
+    resolve();
+  };
+  script.onerror = reject;
+  document.body.appendChild(script);
+});
+
+const updateNavState = (pageKey) => {
+  document.body.dataset.page = pageKey;
+  document.querySelectorAll('[data-nav-link]').forEach((link) => {
+    const url = new URL(link.href, basePath);
+    const target = pageKeyFromPath(url.pathname);
+    const matchesHash = window.location.hash ? url.hash === window.location.hash : !url.hash;
+    link.toggleAttribute('aria-current', target === pageKey && matchesHash);
+  });
+};
+
+const runRouteInitializer = () => {
+  const pageKey = document.body.dataset.page || 'home';
+  routeInitializers[pageKey]?.();
+  updateHeaderProfile();
+};
+
+const loadPage = async (url, push = true) => {
+  document.body.classList.add('is-loading-route');
+  const response = await fetch(url.href, { headers: { 'X-PokeVerse-Navigation': 'spa' } });
+  if (!response.ok) throw new Error('Navigation');
+
+  const html = await response.text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const nextMain = doc.querySelector('main');
+  if (!nextMain) throw new Error('Navigation');
+
+  document.title = doc.title;
+  document.querySelector('main')?.replaceWith(nextMain);
+  document.querySelector('meta[name="description"]')?.setAttribute('content', doc.querySelector('meta[name="description"]')?.content ?? '');
+
+  const pageKey = doc.body.dataset.page || pageKeyFromPath(url.pathname);
+  updateNavState(pageKey);
+
+  const scriptSources = Array.from(doc.querySelectorAll('script[src]'))
+    .map((script) => new URL(script.getAttribute('src'), url).href)
+    .filter((src) => !src.endsWith('/js/main.js') && !src.endsWith('/js/playerProgress.js'));
+  for (const src of scriptSources) await loadScript(src);
+
+  runRouteInitializer();
+  if (push) window.history.pushState({}, '', url.href);
+  if (url.hash) document.querySelector(url.hash)?.scrollIntoView();
+  else window.scrollTo({ top: 0 });
+  document.body.classList.remove('is-loading-route');
 };
 
 const setupNavigation = () => {
@@ -81,29 +166,26 @@ const setupNavigation = () => {
     const link = event.target.closest('a[href]');
     if (!link || isExternalLink(link) || link.target === '_blank' || link.hasAttribute('download')) return;
 
-    const destination = new URL(link.href, window.location.href);
+    const destination = new URL(link.getAttribute('href'), basePath);
     const current = new URL(window.location.href);
     const isSamePageAnchor = destination.pathname === current.pathname && destination.hash;
 
-    if (isSamePageAnchor) {
-      nav?.classList.remove('is-open');
-      toggle?.setAttribute('aria-expanded', 'false');
-      return;
-    }
+    nav?.classList.remove('is-open');
+    toggle?.setAttribute('aria-expanded', 'false');
 
+    if (isSamePageAnchor) return;
     event.preventDefault();
-    document.body.classList.add('is-leaving');
-    window.setTimeout(() => {
-      window.location.href = destination.href;
-    }, 180);
+    loadPage(destination).catch(() => { window.location.href = destination.href; });
+  });
+
+  window.addEventListener('popstate', () => {
+    loadPage(new URL(window.location.href), false).catch(() => window.location.reload());
   });
 };
 
 window.addEventListener('DOMContentLoaded', () => {
-  renderGames();
   setupNavigation();
-  updateHeaderProfile();
-  setupProfilePage();
-  setupMedalsPage();
+  updateNavState(document.body.dataset.page || pageKeyFromPath(window.location.pathname));
+  runRouteInitializer();
   document.body.classList.add('is-loaded');
 });
