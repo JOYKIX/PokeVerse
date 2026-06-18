@@ -1,5 +1,5 @@
 const POKEVERSE_PROFILE_KEY = 'pokeverse:player-profile:v1';
-const BASE_POKEDLE_EXP = 100;
+const BASE_POKEDLE_EXP = 90;
 const SILHOUETTE_MEDAL_PREFIX = 'silhouette:';
 
 const createDefaultPlayerProfile = () => ({
@@ -27,6 +27,14 @@ const createDefaultPlayerProfile = () => ({
   },
   pokedexRushStats: {
     expEarned: 0,
+  },
+  pokecryStats: {
+    gamesPlayed: 0,
+    bestRun: 0,
+    totalCorrectAnswers: 0,
+    expEarned: 0,
+    writtenGamesPlayed: 0,
+    multipleChoiceGamesPlayed: 0,
   },
 });
 
@@ -61,11 +69,20 @@ const normalizePlayerProfile = (profile) => {
     pokedexRushStats: {
       expEarned: Number.isFinite(profile?.pokedexRushStats?.expEarned) ? profile.pokedexRushStats.expEarned : defaults.pokedexRushStats.expEarned,
     },
+    pokecryStats: {
+      gamesPlayed: Number.isFinite(profile?.pokecryStats?.gamesPlayed) ? profile.pokecryStats.gamesPlayed : defaults.pokecryStats.gamesPlayed,
+      bestRun: Number.isFinite(profile?.pokecryStats?.bestRun) ? profile.pokecryStats.bestRun : defaults.pokecryStats.bestRun,
+      totalCorrectAnswers: Number.isFinite(profile?.pokecryStats?.totalCorrectAnswers) ? profile.pokecryStats.totalCorrectAnswers : defaults.pokecryStats.totalCorrectAnswers,
+      expEarned: Number.isFinite(profile?.pokecryStats?.expEarned) ? profile.pokecryStats.expEarned : defaults.pokecryStats.expEarned,
+      writtenGamesPlayed: Number.isFinite(profile?.pokecryStats?.writtenGamesPlayed) ? profile.pokecryStats.writtenGamesPlayed : defaults.pokecryStats.writtenGamesPlayed,
+      multipleChoiceGamesPlayed: Number.isFinite(profile?.pokecryStats?.multipleChoiceGamesPlayed) ? profile.pokecryStats.multipleChoiceGamesPlayed : defaults.pokecryStats.multipleChoiceGamesPlayed,
+    },
   };
 };
 
 function getExpNeededForLevel(level) {
-  return 100 + (Math.max(1, Math.floor(level)) - 1) * 50;
+  const safeLevel = Math.max(1, Math.floor(level));
+  return Math.round(90 + (safeLevel ** 1.62) * 38);
 }
 
 function getPlayerProfile() {
@@ -117,6 +134,7 @@ function addExperience(amount, source = '') {
   if (source === 'pokedle') profile.pokedleStats.expEarned += gained;
   if (source === 'silhouette') profile.silhouetteStats.expEarned += gained;
   if (source === 'pokedexRush') profile.pokedexRushStats.expEarned += gained;
+  if (source === 'pokecry') profile.pokecryStats.expEarned += gained;
 
   const saved = savePlayerProfile(profile);
   updateHeaderProfile();
@@ -175,6 +193,19 @@ function recordSilhouetteGame({ mode, run, exp }) {
   return saved;
 }
 
+function recordPokeCryGame({ mode, run, exp }) {
+  const profile = getPlayerProfile();
+  profile.pokecryStats.gamesPlayed += 1;
+  profile.pokecryStats.totalCorrectAnswers += run;
+  profile.pokecryStats.bestRun = Math.max(profile.pokecryStats.bestRun, run);
+  if (mode === 'written') profile.pokecryStats.writtenGamesPlayed += 1;
+  if (mode === 'multiple-choice') profile.pokecryStats.multipleChoiceGamesPlayed += 1;
+  if (exp > 0) profile.pokecryStats.expEarned += exp;
+  const saved = savePlayerProfile(profile);
+  updateProfilePage();
+  return saved;
+}
+
 function renderExpBar(current, needed, compact = false) {
   const percent = needed > 0 ? Math.min(100, (current / needed) * 100) : 0;
   return `
@@ -221,6 +252,12 @@ function updateProfilePage() {
   root.querySelector('[data-silhouette-exp]').textContent = profile.silhouetteStats.expEarned;
   root.querySelector('[data-silhouette-written]').textContent = profile.silhouetteStats.writtenGamesPlayed;
   root.querySelector('[data-silhouette-qcm]').textContent = profile.silhouetteStats.multipleChoiceGamesPlayed;
+  root.querySelector('[data-pokecry-played]').textContent = profile.pokecryStats.gamesPlayed;
+  root.querySelector('[data-pokecry-best]').textContent = profile.pokecryStats.bestRun;
+  root.querySelector('[data-pokecry-correct]').textContent = profile.pokecryStats.totalCorrectAnswers;
+  root.querySelector('[data-pokecry-exp]').textContent = profile.pokecryStats.expEarned;
+  root.querySelector('[data-pokecry-written]').textContent = profile.pokecryStats.writtenGamesPlayed;
+  root.querySelector('[data-pokecry-qcm]').textContent = profile.pokecryStats.multipleChoiceGamesPlayed;
 }
 
 function setupProfilePage() {

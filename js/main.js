@@ -23,6 +23,14 @@ const games = [
     accent: 'red',
     available: true,
   },
+  {
+    id: 'pokecry',
+    title: 'PokeCry',
+    description: 'Deviner le cri du Pokémon.',
+    href: 'games/pokecry/index.html',
+    accent: 'red',
+    available: true,
+  },
 ];
 
 const isExternalLink = (link) => {
