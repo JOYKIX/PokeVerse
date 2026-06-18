@@ -10,8 +10,8 @@ const createDefaultPlayerProfile = () => ({
   totalExp: 0,
   pokedollars: 0,
   medals: [],
-  ownedThemes: ['base-light', 'base-dark'],
-  activeTheme: 'base-light',
+  ownedThemes: ['pokeball'],
+  activeTheme: 'pokeball',
   expBonus: 1,
   pokedleStats: {
     gamesPlayed: 0,
@@ -87,14 +87,14 @@ const normalizePlayerProfile = (profile) => {
 };
 
 function normalizeOwnedThemes(ownedThemes) {
-  const availableThemes = window.PokeVerseThemes?.themes?.map((theme) => theme.id) ?? ['base-light', 'base-dark'];
+  const availableThemes = window.PokeVerseThemes?.themes?.map((theme) => theme.id) ?? ['pokeball'];
   const owned = Array.isArray(ownedThemes) ? ownedThemes.filter((themeId) => availableThemes.includes(themeId)) : [];
-  return Array.from(new Set(['base-light', 'base-dark', ...owned]));
+  return Array.from(new Set(['pokeball', ...owned]));
 }
 
 function normalizeActiveTheme(activeTheme, ownedThemes) {
   const owned = normalizeOwnedThemes(ownedThemes);
-  return owned.includes(activeTheme) ? activeTheme : 'base-light';
+  return owned.includes(activeTheme) ? activeTheme : 'pokeball';
 }
 
 function getExpNeededForLevel(level) {
