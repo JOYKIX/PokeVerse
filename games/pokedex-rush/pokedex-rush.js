@@ -320,12 +320,21 @@ const setupNavigation = () => {
   });
 };
 
-window.addEventListener('DOMContentLoaded', () => {
+const setupPokedexRush = () => {
   renderOptions();
-  document.querySelector('[data-rush-start]').addEventListener('click', startGame);
-  document.querySelector('[data-rush-form]').addEventListener('submit', submitPokemon);
-  document.querySelector('[data-rush-restart]').addEventListener('click', resetGame);
-  setupNavigation();
-  updateHeaderProfile();
-  document.body.classList.add('is-loaded');
-});
+  document.querySelector('[data-rush-start]')?.addEventListener('click', startGame);
+  document.querySelector('[data-rush-form]')?.addEventListener('submit', submitPokemon);
+  document.querySelector('[data-rush-restart]')?.addEventListener('click', resetGame);
+};
+
+window.PokeVerseGames = window.PokeVerseGames || {};
+window.PokeVerseGames.setupPokedexRush = setupPokedexRush;
+
+if (!window.PokeVerseSpa) {
+  window.addEventListener('DOMContentLoaded', () => {
+    setupPokedexRush();
+    setupNavigation();
+    updateHeaderProfile();
+    document.body.classList.add('is-loaded');
+  });
+}

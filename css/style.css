@@ -591,3 +591,13 @@ dd { margin: 0; font-size: 1.35rem; font-weight: 950; }
 .pokecry-game { display: grid; gap: 1rem; }
 .pokecry-play { justify-self: start; min-width: 170px; }
 .pokecry-game[hidden] { display: none; }
+
+body.is-loading-route main {
+  opacity: .42;
+  pointer-events: none;
+}
+
+.primary-nav a[aria-current="true"] {
+  color: var(--white);
+  background: var(--red);
+}

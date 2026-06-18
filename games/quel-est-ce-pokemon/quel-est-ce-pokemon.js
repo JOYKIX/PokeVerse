@@ -346,9 +346,14 @@ const setupSilhouetteGame = async () => {
   }
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  setupNavigation();
-  updateHeaderProfile();
-  setupSilhouetteGame();
-  document.body.classList.add('is-loaded');
-});
+window.PokeVerseGames = window.PokeVerseGames || {};
+window.PokeVerseGames.setupSilhouetteGame = setupSilhouetteGame;
+
+if (!window.PokeVerseSpa) {
+  window.addEventListener('DOMContentLoaded', () => {
+    setupNavigation();
+    updateHeaderProfile();
+    setupSilhouetteGame();
+    document.body.classList.add('is-loaded');
+  });
+}
