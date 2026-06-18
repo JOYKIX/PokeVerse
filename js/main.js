@@ -142,7 +142,7 @@ const loadPage = async (url, push = true) => {
 
   const scriptSources = Array.from(doc.querySelectorAll('script[src]'))
     .map((script) => new URL(script.getAttribute('src'), url).href)
-    .filter((src) => !src.endsWith('/js/main.js') && !src.endsWith('/js/playerProgress.js'));
+    .filter((src) => !src.endsWith('/js/main.js') && !src.endsWith('/js/playerProgress.js') && !src.endsWith('/js/themes.js'));
   for (const src of scriptSources) await loadScript(src);
 
   runRouteInitializer();

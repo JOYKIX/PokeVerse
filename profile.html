@@ -6,6 +6,7 @@
   <title>Profil — PokeVerse</title>
   <meta name="description" content="Profil PokeVerse." />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="js/themes.js" defer></script>
   <script src="js/playerProgress.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
@@ -46,9 +47,15 @@
             <div><dt>Niveau</dt><dd data-profile-level></dd></div>
             <div><dt>EXP</dt><dd data-profile-exp-bar></dd></div>
             <div><dt>EXP totale</dt><dd data-profile-total-exp></dd></div>
+            <div><dt>Pokédollars</dt><dd data-profile-pokedollars></dd></div>
             <div><dt>Médailles</dt><dd data-profile-medals></dd></div>
             <div><dt>Bonus EXP</dt><dd data-profile-bonus></dd></div>
           </dl>
+        </section>
+
+        <section class="profile-card theme-box-card" aria-labelledby="theme-box-title">
+          <h2 id="theme-box-title">Boite de thèmes</h2>
+          <div class="theme-box" data-theme-box></div>
         </section>
 
         <section class="profile-card" aria-labelledby="pokedle-stats-title">

@@ -8,7 +8,10 @@ const createDefaultPlayerProfile = () => ({
   exp: 0,
   expNeeded: getExpNeededForLevel(1),
   totalExp: 0,
+  pokedollars: 0,
   medals: [],
+  ownedThemes: ['base-light', 'base-dark'],
+  activeTheme: 'base-light',
   expBonus: 1,
   pokedleStats: {
     gamesPlayed: 0,
@@ -49,7 +52,10 @@ const normalizePlayerProfile = (profile) => {
     exp: Number.isFinite(profile?.exp) && profile.exp >= 0 ? Math.floor(profile.exp) : defaults.exp,
     expNeeded: getExpNeededForLevel(level),
     totalExp: Number.isFinite(profile?.totalExp) && profile.totalExp >= 0 ? Math.floor(profile.totalExp) : defaults.totalExp,
+    pokedollars: Number.isFinite(profile?.pokedollars) && profile.pokedollars >= 0 ? Math.floor(profile.pokedollars) : defaults.pokedollars,
     medals,
+    ownedThemes: normalizeOwnedThemes(profile?.ownedThemes),
+    activeTheme: normalizeActiveTheme(profile?.activeTheme, profile?.ownedThemes),
     expBonus: calculateMedalBonus(medals),
     pokedleStats: {
       gamesPlayed: Number.isFinite(profile?.pokedleStats?.gamesPlayed) ? profile.pokedleStats.gamesPlayed : defaults.pokedleStats.gamesPlayed,
@@ -79,6 +85,17 @@ const normalizePlayerProfile = (profile) => {
     },
   };
 };
+
+function normalizeOwnedThemes(ownedThemes) {
+  const availableThemes = window.PokeVerseThemes?.themes?.map((theme) => theme.id) ?? ['base-light', 'base-dark'];
+  const owned = Array.isArray(ownedThemes) ? ownedThemes.filter((themeId) => availableThemes.includes(themeId)) : [];
+  return Array.from(new Set(['base-light', 'base-dark', ...owned]));
+}
+
+function normalizeActiveTheme(activeTheme, ownedThemes) {
+  const owned = normalizeOwnedThemes(ownedThemes);
+  return owned.includes(activeTheme) ? activeTheme : 'base-light';
+}
 
 function getExpNeededForLevel(level) {
   const safeLevel = Math.max(1, Math.floor(level));
@@ -117,11 +134,27 @@ function calculateMedalBonus(medals = getPlayerProfile().medals) {
   return 1 + medals.length * 0.02;
 }
 
+function addPokedollars(amount) {
+  const gained = Math.max(0, Math.round(amount));
+  if (!gained) return { profile: getPlayerProfile(), gained };
+  const profile = getPlayerProfile();
+  profile.pokedollars += gained;
+  const saved = savePlayerProfile(profile);
+  updateHeaderProfile();
+  updateProfilePage();
+  return { profile: saved, gained };
+}
+
+function calculatePokedollarsFromExp(exp) {
+  return Math.max(1, Math.round(exp * 0.35));
+}
+
 function addExperience(amount, source = '') {
   const gained = Math.max(0, Math.round(amount));
   const profile = getPlayerProfile();
   profile.exp += gained;
   profile.totalExp += gained;
+  if (source) profile.pokedollars += calculatePokedollarsFromExp(gained);
 
   while (profile.exp >= getExpNeededForLevel(profile.level)) {
     profile.exp -= getExpNeededForLevel(profile.level);
@@ -228,7 +261,8 @@ function updateHeaderProfile() {
     header.insertBefore(box, header.querySelector('.nav-toggle'));
   }
   const profile = getPlayerProfile();
-  box.innerHTML = `<strong>${profile.pseudo}</strong><span>Niveau ${profile.level}</span>${renderExpBar(profile.exp, profile.expNeeded, true)}`;
+  window.PokeVerseThemes?.applyTheme(profile.activeTheme);
+  box.innerHTML = `<strong>${profile.pseudo}</strong><span>Niveau ${profile.level}</span><span>${profile.pokedollars} ₽</span>${renderExpBar(profile.exp, profile.expNeeded, true)}`;
 }
 
 function updateProfilePage() {
@@ -239,6 +273,7 @@ function updateProfilePage() {
   root.querySelector('[data-profile-level]').textContent = profile.level;
   root.querySelector('[data-profile-exp-bar]').innerHTML = renderExpBar(profile.exp, profile.expNeeded);
   root.querySelector('[data-profile-total-exp]').textContent = profile.totalExp;
+  root.querySelector('[data-profile-pokedollars]').textContent = profile.pokedollars;
   root.querySelector('[data-profile-medals]').textContent = profile.medals.length;
   root.querySelector('[data-profile-bonus]').textContent = `x${profile.expBonus.toFixed(2)}`;
   root.querySelector('[data-pokedle-played]').textContent = profile.pokedleStats.gamesPlayed;
@@ -258,7 +293,49 @@ function updateProfilePage() {
   root.querySelector('[data-pokecry-exp]').textContent = profile.pokecryStats.expEarned;
   root.querySelector('[data-pokecry-written]').textContent = profile.pokecryStats.writtenGamesPlayed;
   root.querySelector('[data-pokecry-qcm]').textContent = profile.pokecryStats.multipleChoiceGamesPlayed;
+  renderThemeBox(root, profile);
 }
+
+function buyTheme(themeId) {
+  const theme = window.PokeVerseThemes?.getThemeById(themeId);
+  if (!theme) return null;
+  const profile = getPlayerProfile();
+  if (!profile.ownedThemes.includes(theme.id)) {
+    if (profile.pokedollars < theme.price) return null;
+    profile.pokedollars -= theme.price;
+    profile.ownedThemes.push(theme.id);
+  }
+  profile.activeTheme = theme.id;
+  const saved = savePlayerProfile(profile);
+  window.PokeVerseThemes?.applyTheme(saved.activeTheme);
+  updateHeaderProfile();
+  updateProfilePage();
+  return saved;
+}
+
+function renderThemeBox(root, profile) {
+  const list = root.querySelector('[data-theme-box]');
+  if (!list || !window.PokeVerseThemes) return;
+  list.innerHTML = '';
+  window.PokeVerseThemes.themes.forEach((theme) => {
+    const owned = profile.ownedThemes.includes(theme.id);
+    const active = profile.activeTheme === theme.id;
+    const item = document.createElement('article');
+    item.className = 'theme-card';
+    item.toggleAttribute('data-active', active);
+    item.innerHTML = `
+      <div class="theme-preview" style="--preview-primary: ${theme.colors.red}; --preview-secondary: ${theme.colors.black}; --preview-paper: ${theme.colors.paper};"></div>
+      <div>
+        <h3>${theme.name}</h3>
+        <p>${theme.price ? `${theme.price} ₽` : '0 ₽'}</p>
+      </div>
+      <button class="btn ${active ? 'btn-ghost' : 'btn-primary'}" type="button" ${(!owned && profile.pokedollars < theme.price) || active ? 'disabled' : ''}>${active ? 'Actif' : owned ? 'Utiliser' : 'Acheter'}</button>
+    `;
+    item.querySelector('button').addEventListener('click', () => buyTheme(theme.id));
+    list.appendChild(item);
+  });
+}
+
 
 function setupProfilePage() {
   const root = document.querySelector('[data-profile-page]');
@@ -268,6 +345,7 @@ function setupProfilePage() {
     updatePlayerName(root.querySelector('[data-profile-name]').value);
   });
   updateProfilePage();
+  window.PokeVerseThemes?.applyTheme(getPlayerProfile().activeTheme);
 }
 
 const MEDAL_LABELS = {
