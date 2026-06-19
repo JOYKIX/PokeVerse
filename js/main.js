@@ -33,6 +33,14 @@ const games = [
     accent: 'red',
     available: true,
   },
+  {
+    id: 'poketype',
+    title: 'PokeType',
+    description: 'Trouver un type ou un Pokémon.',
+    href: 'games/poketype/index.html',
+    accent: 'red',
+    available: true,
+  },
 ];
 
 const loadedScripts = new Set(Array.from(document.scripts).map((script) => new URL(script.src || window.location.href, window.location.href).href));
@@ -47,6 +55,7 @@ const routeInitializers = {
   'quel-est-ce-pokemon': () => window.PokeVerseGames?.setupSilhouetteGame?.(),
   'pokedex-rush': () => window.PokeVerseGames?.setupPokedexRush?.(),
   pokecry: () => window.PokeVerseGames?.setupPokeCryGame?.(),
+  poketype: () => window.PokeVerseGames?.setupPokeType?.(),
 };
 
 const isExternalLink = (link) => {
@@ -83,11 +92,32 @@ const createGameCard = (game, compact = false) => {
   return article;
 };
 
+const filterGames = (query) => {
+  const normalizedQuery = query.trim().toLowerCase();
+  document.querySelectorAll('[data-game-card]').forEach((card) => {
+    const title = card.dataset.gameTitle ?? '';
+    card.hidden = normalizedQuery && !title.includes(normalizedQuery);
+  });
+};
+
 const renderGames = () => {
   const grid = document.querySelector('[data-games-grid]');
-  if (!grid || grid.dataset.rendered === 'true') return;
-  games.forEach((game) => grid.appendChild(createGameCard(game, true)));
-  grid.dataset.rendered = 'true';
+  if (!grid) return;
+  if (grid.dataset.rendered !== 'true') {
+    games.forEach((game) => {
+      const card = createGameCard(game, true);
+      card.dataset.gameCard = '';
+      card.dataset.gameTitle = game.title.toLowerCase();
+      grid.appendChild(card);
+    });
+    grid.dataset.rendered = 'true';
+  }
+  const search = document.querySelector('[data-games-search]');
+  if (search && search.dataset.bound !== 'true') {
+    search.addEventListener('input', () => filterGames(search.value));
+    search.dataset.bound = 'true';
+  }
+  if (search) filterGames(search.value);
 };
 
 const loadScript = (src) => new Promise((resolve, reject) => {
