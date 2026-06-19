@@ -49,8 +49,10 @@
         <p class="poketype-score"><span data-poketype-run>0</span></p>
         <div class="poketype-prompt" data-poketype-prompt></div>
         <form class="poketype-form" data-poketype-form autocomplete="off">
-          <label class="sr-only" for="poketype-answer">Réponse</label>
-          <input id="poketype-answer" class="poketype-input" type="search" data-poketype-input />
+          <label class="sr-only" for="poketype-answer-primary">Type principal</label>
+          <input id="poketype-answer-primary" class="poketype-input" type="search" data-poketype-input data-poketype-primary />
+          <label class="sr-only" for="poketype-answer-secondary">Type secondaire</label>
+          <input id="poketype-answer-secondary" class="poketype-input" type="search" data-poketype-secondary />
           <datalist id="poketype-list" data-poketype-list></datalist>
           <button class="btn btn-primary" type="submit">Valider</button>
         </form>

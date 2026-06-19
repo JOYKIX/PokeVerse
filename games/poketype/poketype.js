@@ -43,6 +43,8 @@ const fetchTypeLabel = async (typeName) => {
   return getFrenchResourceName(type, typeName);
 };
 
+const getTypeAliases = (type) => [type.key, type.label].map(normalizeValue);
+
 const fetchPokeTypePokemon = async () => {
   const cached = readCache();
   if (cached) return cached;
@@ -89,16 +91,19 @@ const state = {
   pokemon: [],
   mode: POKETYPE_MODE_POKEMON_TO_TYPE,
   secret: null,
+  acceptedAliases: [],
   run: 0,
 };
 
 const renderSuggestions = () => {
-  const input = document.querySelector('[data-poketype-input]');
+  const primaryInput = document.querySelector('[data-poketype-primary]');
+  const secondaryInput = document.querySelector('[data-poketype-secondary]');
   const list = document.querySelector('[data-poketype-list]');
+  secondaryInput.hidden = state.mode !== POKETYPE_MODE_POKEMON_TO_TYPE;
   if (state.mode === POKETYPE_MODE_POKEMON_TO_TYPE) {
-    input.removeAttribute('list');
+    primaryInput.removeAttribute('list');
   } else {
-    input.setAttribute('list', 'poketype-list');
+    primaryInput.setAttribute('list', 'poketype-list');
   }
   list.innerHTML = '';
   if (state.mode !== POKETYPE_MODE_TYPE_TO_POKEMON) return;
@@ -111,20 +116,25 @@ const renderSuggestions = () => {
 
 const nextQuestion = () => {
   state.secret = pickRandom(state.pokemon);
+  state.acceptedAliases = [];
+  const primaryInput = document.querySelector('[data-poketype-primary]');
+  const secondaryInput = document.querySelector('[data-poketype-secondary]');
   document.querySelector('[data-poketype-run]').textContent = state.run;
   document.querySelector('[data-poketype-status]').textContent = '';
-  document.querySelector('[data-poketype-input]').value = '';
+  primaryInput.value = '';
+  secondaryInput.value = '';
 
   if (state.mode === POKETYPE_MODE_POKEMON_TO_TYPE) {
     document.querySelector('[data-poketype-prompt]').textContent = state.secret.name;
-    document.querySelector('[data-poketype-input]').placeholder = 'Type';
+    primaryInput.placeholder = 'Type principal';
+    secondaryInput.placeholder = 'Type secondaire';
   } else {
     const matches = state.pokemon.filter((pokemon) => pokemon.typeLabel === state.secret.typeLabel);
-    state.secret = pickRandom(matches);
+    state.acceptedAliases = matches.flatMap((pokemon) => pokemon.aliases);
     document.querySelector('[data-poketype-prompt]').textContent = state.secret.typeLabel;
-    document.querySelector('[data-poketype-input]').placeholder = 'Pokémon';
+    primaryInput.placeholder = 'Pokémon';
   }
-  document.querySelector('[data-poketype-input]').focus();
+  primaryInput.focus();
 };
 
 const endGame = () => {
@@ -136,12 +146,22 @@ const endGame = () => {
     : state.secret.name;
 };
 
+const isCorrectTypeAnswer = () => {
+  const primaryValue = normalizeValue(document.querySelector('[data-poketype-primary]').value);
+  const secondaryValue = normalizeValue(document.querySelector('[data-poketype-secondary]').value);
+  const primaryAliases = getTypeAliases(state.secret.types[0]);
+  const secondaryAliases = state.secret.types[1] ? getTypeAliases(state.secret.types[1]) : [];
+
+  return primaryAliases.includes(primaryValue)
+    && (secondaryAliases.length ? secondaryAliases.includes(secondaryValue) : secondaryValue === '');
+};
+
 const submitAnswer = (event) => {
   event.preventDefault();
-  const value = normalizeValue(document.querySelector('[data-poketype-input]').value);
+  const value = normalizeValue(document.querySelector('[data-poketype-primary]').value);
   const isCorrect = state.mode === POKETYPE_MODE_POKEMON_TO_TYPE
-    ? state.secret.typeAliases.includes(value)
-    : state.secret.aliases.includes(value);
+    ? isCorrectTypeAnswer()
+    : state.acceptedAliases.includes(value);
 
   if (!isCorrect) {
     endGame();
