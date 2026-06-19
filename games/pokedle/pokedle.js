@@ -204,8 +204,6 @@ const setupPokedle = async () => {
   const attemptsBody = document.querySelector('[data-pokedle-attempts]');
   const win = document.querySelector('[data-pokedle-win]');
   const resultTitle = document.querySelector('[data-pokedle-result-title]');
-  const attemptCount = document.querySelector('[data-pokedle-attempt-count]');
-  const found = document.querySelector('[data-pokedle-found]');
   const expGain = document.querySelector('[data-pokedle-exp-gain]');
   const newGame = document.querySelector('[data-pokedle-new]');
   const startPanel = document.querySelector('[data-pokedle-start-panel]');
@@ -336,17 +334,10 @@ const setupPokedle = async () => {
       const progressResult = addExperience(expResult.exp, 'pokedle');
       recordPokedleGame({ won: true, attempts: attempts.length, exp: 0, countPlayed: false });
       resultTitle.textContent = 'Victoire';
-      attemptCount.textContent = `Tentatives : ${attempts.length}`;
-      found.textContent = `Pokémon trouvé : ${guess.name}`;
+      const pokedollarsGained = calculatePokedollarsFromExp(progressResult.gained);
       expGain.innerHTML = `
-        <span>Générations : ${currentSelection.map((generation) => generationLabels[generation]).join(', ')}</span>
-        <span>Pool : ${playablePokemon.length} Pokémon</span>
-        <span>Multiplicateur génération : x${expResult.generationMultiplier.toFixed(3)}</span>
-        <span>Bonus tentatives : x${expResult.attemptMultiplier.toFixed(2)}</span>
-        <span>Bonus médailles : x${expResult.medalBonusMultiplier.toFixed(2)}</span>
         <span>EXP gagnée : ${progressResult.gained}</span>
-        <span>Niveau actuel : ${progressResult.profile.level}</span>
-        <span>Progression : ${progressResult.profile.exp} / ${progressResult.profile.expNeeded} EXP</span>
+        <span>Pokédollars gagnés : ${pokedollarsGained}</span>
       `;
       win.hidden = false;
     }
@@ -357,9 +348,7 @@ const setupPokedle = async () => {
 
     setPlayable(false);
     status.textContent = '';
-    resultTitle.textContent = 'Réponse';
-    attemptCount.textContent = `Tentatives : ${attempts.length}`;
-    found.textContent = `Pokémon : ${secret.name}`;
+    resultTitle.textContent = 'Défaite';
     expGain.textContent = '';
     win.hidden = false;
   });
