@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokeType — PokeVerse</title>
+  <meta name="description" content="PokeType." />
+  <link rel="stylesheet" href="../../css/style.css" />
+  <script src="../../js/themes.js" defer></script>
+  <script src="../../js/playerProgress.js" defer></script>
+  <script src="../../js/pokeapi.js" defer></script>
+  <script src="poketype.js" defer></script>
+</head>
+<body data-page="poketype">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+
+  <header class="site-header" data-site-header>
+    <a class="brand" href="../../index.html" aria-label="PokeVerse">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>PokeVerse</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
+      <a href="../../index.html" data-nav-link>Accueil</a>
+      <a href="../../index.html#games" data-nav-link>Jeux</a>
+      <a href="../../pokedex/" data-nav-link>Pokédex</a>
+      <a href="../../profile.html" data-nav-link>Profil</a>
+      <a href="../../medals.html" data-nav-link>Médailles</a>
+    </nav>
+  </header>
+
+  <main id="main-content" class="poketype-page">
+    <section class="poketype-hero section-band" aria-labelledby="poketype-title">
+      <h1 id="poketype-title">PokeType</h1>
+      <div class="poketype-start" data-poketype-start-panel>
+        <fieldset class="poketype-modes">
+          <legend>Mode</legend>
+          <label class="poketype-option"><input type="radio" name="poketype-mode" value="pokemon-to-type" checked /> <span>Mode 1</span></label>
+          <label class="poketype-option"><input type="radio" name="poketype-mode" value="type-to-pokemon" /> <span>Mode 2</span></label>
+        </fieldset>
+        <button class="btn btn-primary" type="button" data-poketype-start>Commencer</button>
+        <p class="poketype-error" data-poketype-error></p>
+      </div>
+
+      <div class="poketype-game" data-poketype-game hidden>
+        <p class="poketype-score"><span data-poketype-run>0</span></p>
+        <div class="poketype-prompt" data-poketype-prompt></div>
+        <form class="poketype-form" data-poketype-form autocomplete="off">
+          <label class="sr-only" for="poketype-answer">Réponse</label>
+          <input id="poketype-answer" class="poketype-input" type="search" data-poketype-input />
+          <datalist id="poketype-list" data-poketype-list></datalist>
+          <button class="btn btn-primary" type="submit">Valider</button>
+        </form>
+        <p class="poketype-status" data-poketype-status></p>
+      </div>
+
+      <div class="poketype-result" data-poketype-result hidden>
+        <h2 data-poketype-result-title>Résultat</h2>
+        <p data-poketype-answer></p>
+        <button class="btn btn-primary" type="button" data-poketype-new>Nouvelle partie</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 PokeVerse</p>
+    <a href="../../index.html">Accueil</a>
+  </footer>
+</body>
+</html>
