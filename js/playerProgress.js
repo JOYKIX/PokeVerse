@@ -10,8 +10,8 @@ const createDefaultPlayerProfile = () => ({
   totalExp: 0,
   pokedollars: 0,
   medals: [],
-  ownedThemes: ['pokeball'],
-  activeTheme: 'pokeball',
+  ownedThemes: ['pokeball-light', 'pokeball-dark'],
+  activeTheme: 'pokeball-light',
   expBonus: 1,
   pokedleStats: {
     gamesPlayed: 0,
@@ -87,14 +87,19 @@ const normalizePlayerProfile = (profile) => {
 };
 
 function normalizeOwnedThemes(ownedThemes) {
-  const availableThemes = window.PokeVerseThemes?.themes?.map((theme) => theme.id) ?? ['pokeball'];
-  const owned = Array.isArray(ownedThemes) ? ownedThemes.filter((themeId) => availableThemes.includes(themeId)) : [];
-  return Array.from(new Set(['pokeball', ...owned]));
+  const availableThemes = window.PokeVerseThemes?.themes?.map((theme) => theme.id) ?? ['pokeball-light'];
+  const legacyThemeMap = { pokeball: 'pokeball-light', superball: 'superball-light', hyperball: 'hyperball-light', masterball: 'masterball-light' };
+  const owned = Array.isArray(ownedThemes)
+    ? ownedThemes.map((themeId) => legacyThemeMap[themeId] ?? themeId).filter((themeId) => availableThemes.includes(themeId))
+    : [];
+  return Array.from(new Set(['pokeball-light', 'pokeball-dark', ...owned]));
 }
 
 function normalizeActiveTheme(activeTheme, ownedThemes) {
   const owned = normalizeOwnedThemes(ownedThemes);
-  return owned.includes(activeTheme) ? activeTheme : 'pokeball';
+  const legacyThemeMap = { pokeball: 'pokeball-light', superball: 'superball-light', hyperball: 'hyperball-light', masterball: 'masterball-light' };
+  const normalizedActiveTheme = legacyThemeMap[activeTheme] ?? activeTheme;
+  return owned.includes(normalizedActiveTheme) ? normalizedActiveTheme : 'pokeball-light';
 }
 
 function getExpNeededForLevel(level) {
@@ -324,7 +329,7 @@ function renderThemeBox(root, profile) {
     item.className = 'theme-card';
     item.toggleAttribute('data-active', active);
     item.innerHTML = `
-      <div class="theme-preview" style="--preview-primary: ${theme.colors.red}; --preview-secondary: ${theme.colors.black}; --preview-paper: ${theme.colors.paper};"></div>
+      <div class="theme-preview" style="--preview-primary: ${theme.colors.primary}; --preview-accent: ${theme.colors.accent}; --preview-secondary: ${theme.colors.black}; --preview-paper: ${theme.colors.paper};"></div>
       <div>
         <h3>${theme.name}</h3>
         <p>${theme.price ? `${theme.price} ₽` : '0 ₽'}</p>
