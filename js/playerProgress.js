@@ -10,8 +10,8 @@ const createDefaultPlayerProfile = () => ({
   totalExp: 0,
   pokedollars: 0,
   medals: [],
-  ownedThemes: ['pokeball'],
-  activeTheme: 'pokeball',
+  ownedThemes: ['light', 'dark'],
+  activeTheme: 'light',
   expBonus: 1,
   pokedleStats: {
     gamesPlayed: 0,
@@ -87,14 +87,14 @@ const normalizePlayerProfile = (profile) => {
 };
 
 function normalizeOwnedThemes(ownedThemes) {
-  const availableThemes = window.PokeVerseThemes?.themes?.map((theme) => theme.id) ?? ['pokeball'];
+  const availableThemes = window.PokeVerseThemes?.themes?.map((theme) => theme.id) ?? ['light', 'dark'];
   const owned = Array.isArray(ownedThemes) ? ownedThemes.filter((themeId) => availableThemes.includes(themeId)) : [];
-  return Array.from(new Set(['pokeball', ...owned]));
+  return Array.from(new Set(['light', 'dark', ...owned]));
 }
 
 function normalizeActiveTheme(activeTheme, ownedThemes) {
   const owned = normalizeOwnedThemes(ownedThemes);
-  return owned.includes(activeTheme) ? activeTheme : 'pokeball';
+  return owned.includes(activeTheme) ? activeTheme : 'light';
 }
 
 function getExpNeededForLevel(level) {
@@ -300,11 +300,7 @@ function buyTheme(themeId) {
   const theme = window.PokeVerseThemes?.getThemeById(themeId);
   if (!theme) return null;
   const profile = getPlayerProfile();
-  if (!profile.ownedThemes.includes(theme.id)) {
-    if (profile.pokedollars < theme.price) return null;
-    profile.pokedollars -= theme.price;
-    profile.ownedThemes.push(theme.id);
-  }
+  profile.ownedThemes = normalizeOwnedThemes(profile.ownedThemes);
   profile.activeTheme = theme.id;
   const saved = savePlayerProfile(profile);
   window.PokeVerseThemes?.applyTheme(saved.activeTheme);
@@ -324,12 +320,11 @@ function renderThemeBox(root, profile) {
     item.className = 'theme-card';
     item.toggleAttribute('data-active', active);
     item.innerHTML = `
-      <div class="theme-preview" style="--preview-primary: ${theme.colors.red}; --preview-secondary: ${theme.colors.black}; --preview-paper: ${theme.colors.paper};"></div>
+      <div class="theme-preview" data-theme-preview="${theme.id}"></div>
       <div>
         <h3>${theme.name}</h3>
-        <p>${theme.price ? `${theme.price} ₽` : '0 ₽'}</p>
       </div>
-      <button class="btn ${active ? 'btn-ghost' : 'btn-primary'}" type="button" ${(!owned && profile.pokedollars < theme.price) || active ? 'disabled' : ''}>${active ? 'Actif' : owned ? 'Utiliser' : 'Acheter'}</button>
+      <button class="btn ${active ? 'btn-ghost' : 'btn-primary'}" type="button" ${active ? 'disabled' : ''}>${active ? 'Actif' : 'Utiliser'}</button>
     `;
     item.querySelector('button').addEventListener('click', () => buyTheme(theme.id));
     list.appendChild(item);
