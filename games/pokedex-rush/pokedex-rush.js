@@ -31,6 +31,7 @@ let state = {
   startedAt: 0,
   timer: null,
   expEarned: 0,
+  isRevealed: false,
 };
 
 const normalizeName = (value) => value
@@ -169,7 +170,7 @@ const updateGame = () => {
     .map((pokemon) => `
       <tr class="${state.found.has(pokemon.key) ? 'is-found' : ''}">
         <td>${pokemon.number}</td>
-        <td>${state.found.has(pokemon.key) ? pokemon.name : ''}</td>
+        <td>${state.found.has(pokemon.key) || state.isRevealed ? pokemon.name : ''}</td>
       </tr>
     `)
     .join('');
@@ -269,6 +270,7 @@ const startGame = async () => {
     state.pokemon = await getPokedexPokemon(state.selectedDex);
     state.found = new Set();
     state.expEarned = 0;
+    state.isRevealed = false;
     const stats = getStats();
     stats.gamesPlayed += 1;
     saveStats(stats);
@@ -291,11 +293,25 @@ const startGame = async () => {
 
 const resetGame = () => {
   stopTimer();
-  state = { selectedDex: null, pokemon: [], found: new Set(), startedAt: 0, timer: null, expEarned: 0 };
+  state = { selectedDex: null, pokemon: [], found: new Set(), startedAt: 0, timer: null, expEarned: 0, isRevealed: false };
   document.querySelector('[data-rush-start-panel]').hidden = false;
   document.querySelector('[data-rush-game]').hidden = true;
   document.querySelector('[data-rush-results-section]').hidden = true;
   document.querySelector('[data-rush-win]').hidden = true;
+};
+
+const abandonGame = () => {
+  if (!state.pokemon.length) {
+    resetGame();
+    return;
+  }
+
+  stopTimer();
+  state.isRevealed = true;
+  document.querySelector('[data-rush-game]').hidden = true;
+  document.querySelector('[data-rush-start-panel]').hidden = false;
+  document.querySelector('[data-rush-results-section]').hidden = false;
+  updateGame();
 };
 
 const isExternalLink = (link) => new URL(link.href, window.location.href).origin !== window.location.origin;
@@ -324,7 +340,7 @@ const setupPokedexRush = () => {
   renderOptions();
   document.querySelector('[data-rush-start]')?.addEventListener('click', startGame);
   document.querySelector('[data-rush-form]')?.addEventListener('submit', submitPokemon);
-  document.querySelector('[data-rush-restart]')?.addEventListener('click', resetGame);
+  document.querySelector('[data-rush-restart]')?.addEventListener('click', abandonGame);
 };
 
 window.PokeVerseGames = window.PokeVerseGames || {};

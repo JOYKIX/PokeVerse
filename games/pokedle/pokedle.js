@@ -204,6 +204,7 @@ const setupPokedle = async () => {
   const attemptsBody = document.querySelector('[data-pokedle-attempts]');
   const win = document.querySelector('[data-pokedle-win]');
   const resultTitle = document.querySelector('[data-pokedle-result-title]');
+  const answer = document.querySelector('[data-pokedle-answer]');
   const expGain = document.querySelector('[data-pokedle-exp-gain]');
   const newGame = document.querySelector('[data-pokedle-new]');
   const startPanel = document.querySelector('[data-pokedle-start-panel]');
@@ -268,6 +269,7 @@ const setupPokedle = async () => {
     input.value = '';
     win.hidden = true;
     resultTitle.textContent = 'Victoire';
+    answer.textContent = '';
     expGain.textContent = '';
     status.textContent = '';
     error.textContent = '';
@@ -334,6 +336,7 @@ const setupPokedle = async () => {
       const progressResult = addExperience(expResult.exp, 'pokedle');
       recordPokedleGame({ won: true, attempts: attempts.length, exp: 0, countPlayed: false });
       resultTitle.textContent = 'Victoire';
+      answer.textContent = '';
       const pokedollarsGained = calculatePokedollarsFromExp(progressResult.gained);
       expGain.innerHTML = `
         <span>EXP gagnée : ${progressResult.gained}</span>
@@ -349,6 +352,7 @@ const setupPokedle = async () => {
     setPlayable(false);
     status.textContent = '';
     resultTitle.textContent = 'Défaite';
+    answer.textContent = `Pokémon : ${secret.name}`;
     expGain.textContent = '';
     win.hidden = false;
   });
