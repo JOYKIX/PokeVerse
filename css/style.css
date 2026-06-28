@@ -398,3 +398,47 @@ body.is-loading-route main { opacity: .42; pointer-events: none; }
   .pokeakinator-board { grid-template-columns: 1fr; }
   .pokeakinator-actions .btn { flex: 1 1 160px; }
 }
+
+.pokeakinator-topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted);
+  font-weight: 950;
+}
+.pokeakinator-progress {
+  height: 12px;
+  overflow: hidden;
+  background: var(--surface-3);
+  border-radius: 999px;
+}
+.pokeakinator-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--red);
+  border-radius: inherit;
+  transition: width .25s var(--ease);
+}
+.pokeakinator-candidates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  min-height: 2.4rem;
+}
+.pokeakinator-candidates span {
+  padding: .48rem .72rem;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 900;
+}
+.pokeakinator-result img {
+  width: min(56vw, 220px);
+  height: min(56vw, 220px);
+  object-fit: contain;
+  image-rendering: auto;
+}
+.pokeakinator-result img[hidden], .pokeakinator-result[hidden] { display: none; }

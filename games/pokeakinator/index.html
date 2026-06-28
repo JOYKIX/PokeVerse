@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PokeAkinator — PokeVerse</title>
-  <meta name="description" content="PokeAkinator." />
+  <title>Pokinator — PokeVerse</title>
+  <meta name="description" content="Pokinator." />
   <link rel="stylesheet" href="../../css/style.css" />
   <script src="../../js/themes.js" defer></script>
   <script src="../../js/playerProgress.js" defer></script>
@@ -33,29 +33,35 @@
 
   <main id="main-content" class="pokeakinator-page">
     <section class="section-band" aria-labelledby="pokeakinator-title">
-      <h1 id="pokeakinator-title">PokeAkinator</h1>
+      <h1 id="pokeakinator-title">Pokinator</h1>
       <div class="pokeakinator-start" data-pokeakinator-start-panel>
         <button class="btn btn-primary" type="button" data-pokeakinator-start>Commencer</button>
         <p class="pokedle-error" data-pokeakinator-error></p>
       </div>
 
       <div class="pokeakinator-game" data-pokeakinator-game hidden>
+        <div class="pokeakinator-topbar" aria-live="polite">
+          <span data-pokeakinator-step></span>
+          <span data-pokeakinator-count></span>
+        </div>
+        <div class="pokeakinator-progress" aria-hidden="true"><span data-pokeakinator-progress></span></div>
         <div class="pokeakinator-board">
-          <div class="pokeakinator-sprite"><img alt="Mega Alakazam" data-pokeakinator-sprite /></div>
+          <div class="pokeakinator-sprite"><img alt="Pokinator" data-pokeakinator-sprite /></div>
           <div class="pokeakinator-dialog">
-            <p data-pokeakinator-count></p>
             <h2 data-pokeakinator-question></h2>
-            <div class="pokeakinator-actions">
+            <div class="pokeakinator-actions" role="group" aria-label="Réponse">
               <button class="btn btn-primary" type="button" data-pokeakinator-answer="yes">Oui</button>
               <button class="btn btn-ghost" type="button" data-pokeakinator-answer="no">Non</button>
               <button class="btn btn-ghost" type="button" data-pokeakinator-answer="unknown">Je ne sais pas</button>
             </div>
           </div>
         </div>
+        <div class="pokeakinator-candidates" data-pokeakinator-candidates aria-live="polite"></div>
       </div>
 
-      <div class="pokedle-win" data-pokeakinator-result hidden>
+      <div class="pokedle-win pokeakinator-result" data-pokeakinator-result hidden>
         <h2 data-pokeakinator-result-title></h2>
+        <img alt="" data-pokeakinator-result-sprite />
         <p><span data-pokeakinator-guess></span></p>
         <div class="pokeakinator-actions">
           <button class="btn btn-primary" type="button" data-pokeakinator-correct>Oui</button>

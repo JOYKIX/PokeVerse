@@ -43,7 +43,7 @@ const games = [
   },
   {
     id: 'pokeakinator',
-    title: 'PokeAkinator',
+    title: 'Pokinator',
     description: 'Deviner le Pokémon pensé avec des questions.',
     href: 'games/pokeakinator/index.html',
     accent: 'red',
