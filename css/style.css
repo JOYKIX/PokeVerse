@@ -183,7 +183,7 @@ p { color: var(--muted); line-height: 1.55; }
   box-shadow: var(--shadow);
 }
 .section-block, .section-band { padding: clamp(1rem, 3vw, 2.5rem); }
-.games-section, .profile-page, .medals-page, .pokedle-page, .silhouette-page, .pokedex-rush-page, .pokecry-page, .pokedex-page, .poketype-page { min-height: calc(100vh - var(--header-h) - 5rem); }
+.games-section, .profile-page, .medals-page, .pokedle-page, .silhouette-page, .pokedex-rush-page, .pokecry-page, .pokedex-page, .poketype-page, .pokechain-page { min-height: calc(100vh - var(--header-h) - 5rem); }
 .section-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 420px); gap: 1rem; align-items: end; }
 .games-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; margin-top: 1.25rem; }
 .game-card {
@@ -224,7 +224,7 @@ p { color: var(--muted); line-height: 1.55; }
 .card-footer a:active, .btn:active:not(:disabled) { transform: translateY(0) scale(.98); }
 .btn:disabled { cursor: not-allowed; opacity: .45; }
 
-input[type="text"], input[type="search"], .pokedle-input, .profile-form input, .pokedex-rush-input, .poketype-input {
+input[type="text"], input[type="search"], .pokedle-input, .profile-form input, .pokedex-rush-input, .poketype-input, .pokechain-input {
   width: 100%;
   min-height: 50px;
   padding: .8rem 1rem;
@@ -244,10 +244,10 @@ input:disabled { background: var(--surface-3); cursor: not-allowed; opacity: .7;
 .exp-bar-mini { grid-column: 1 / -1; height: 7px; }
 .exp-value { display: block; margin-top: .35rem; color: var(--muted); font-size: .84rem; font-weight: 850; }
 
-.profile-form, .pokedle-form, .pokedex-rush-form, .pokedex-search, .poketype-form { display: flex; flex-wrap: wrap; gap: .75rem; max-width: none; }
+.profile-form, .pokedle-form, .pokedex-rush-form, .pokedex-search, .poketype-form, .pokechain-form { display: flex; flex-wrap: wrap; gap: .75rem; max-width: none; }
 .profile-form { align-items: end; margin-bottom: 1.25rem; }
 .profile-form label { flex-basis: 100%; color: var(--muted); font-size: .78rem; font-weight: 900; text-transform: uppercase; }
-.profile-form input, .pokedle-input, .pokedex-rush-input, .pokedex-search input, .poketype-input { flex: 1 1 260px; }
+.profile-form input, .pokedle-input, .pokedex-rush-input, .pokedex-search input, .poketype-input, .pokechain-input { flex: 1 1 260px; }
 .profile-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; }
 .profile-card { grid-column: span 4; padding: 1.2rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-lg); }
 .profile-card.theme-box-card { grid-column: span 8; }
@@ -262,8 +262,8 @@ dd { margin: 0; font-size: 1.25rem; font-weight: 950; text-align: right; }
 .theme-preview { width: 48px; height: 48px; border: 1px solid var(--line); border-radius: 50%; background: var(--white); }
 .theme-preview[data-theme-preview="dark"] { background: var(--black); }
 
-.pokedle-page, .silhouette-page, .pokedex-rush-page, .pokecry-page, .pokedex-page, .poketype-page { display: grid; gap: 1rem; }
-.pokedle-start, .pokedex-rush-start, .pokedex-rush-game, .pokecry-game, .silhouette-game, .poketype-start, .poketype-game { display: grid; gap: 1rem; }
+.pokedle-page, .silhouette-page, .pokedex-rush-page, .pokecry-page, .pokedex-page, .poketype-page, .pokechain-page { display: grid; gap: 1rem; }
+.pokedle-start, .pokedex-rush-start, .pokedex-rush-game, .pokecry-game, .silhouette-game, .poketype-start, .poketype-game, .pokechain-start, .pokechain-game { display: grid; gap: 1rem; }
 .pokedle-generations, .silhouette-modes, .pokedex-rush-options, .poketype-modes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -287,8 +287,8 @@ dd { margin: 0; font-size: 1.25rem; font-weight: 950; text-align: right; }
   font-weight: 850;
 }
 input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-color: var(--red); }
-.pokedle-exp, .pokedle-error, .pokedle-status, .pokedex-rush-error, .poketype-error, .poketype-status, .pokedex-status { min-height: 1.5rem; margin: 0; font-weight: 850; }
-.pokedle-error, .pokedex-rush-error, .poketype-error { color: var(--danger); }
+.pokedle-exp, .pokedle-error, .pokedle-status, .pokedex-rush-error, .poketype-error, .poketype-status, .pokechain-error, .pokechain-status, .pokedex-status { min-height: 1.5rem; margin: 0; font-weight: 850; }
+.pokedle-error, .pokedex-rush-error, .poketype-error, .pokechain-error { color: var(--danger); }
 .pokedle-status, .pokedex-status { color: var(--muted); }
 
 .pokedle-table-wrap, .pokedex-rush-table-wrap { overflow-x: auto; }
@@ -301,7 +301,7 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .pokedle-cell.is-wrong { background: var(--danger); }
 .pokedle-cell-value, .pokedle-marker { display: block; }
 .pokedle-marker { margin-top: .18rem; }
-.pokedle-win, .pokedex-rush-win, .poketype-result {
+.pokedle-win, .pokedex-rush-win, .poketype-result, .pokechain-result {
   display: grid;
   gap: .7rem;
   max-width: 760px;
@@ -312,10 +312,10 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .pokedex-rush-win { display: flex; flex-wrap: wrap; }
 .pokedex-rush-win h2, .pokedex-rush-win p { flex-basis: 100%; margin-bottom: 0; }
-.pokedle-win p, .pokedex-rush-win p, .poketype-result p { margin: 0; color: #c8c8ce; font-weight: 800; }
-.pokedle-game[hidden], .pokedle-win[hidden], .pokedex-rush-game[hidden], .pokedex-rush-win[hidden], .pokedex-rush-results[hidden], .pokedex-rush-start[hidden], .pokecry-game[hidden], .silhouette-game[hidden], .pokedle-start[hidden], .poketype-game[hidden], .poketype-result[hidden], .poketype-start[hidden] { display: none; }
+.pokedle-win p, .pokedex-rush-win p, .poketype-result p, .pokechain-result p { margin: 0; color: #c8c8ce; font-weight: 800; }
+.pokedle-game[hidden], .pokedle-win[hidden], .pokedex-rush-game[hidden], .pokedex-rush-win[hidden], .pokedex-rush-results[hidden], .pokedex-rush-start[hidden], .pokecry-game[hidden], .silhouette-game[hidden], .pokedle-start[hidden], .poketype-game[hidden], .poketype-result[hidden], .poketype-start[hidden], .pokechain-game[hidden], .pokechain-result[hidden], .pokechain-start[hidden] { display: none; }
 
-.silhouette-score, .poketype-score { justify-self: start; margin: 0; padding: .65rem .9rem; color: var(--white); background: var(--black); border-radius: 999px; font-weight: 950; }
+.silhouette-score, .poketype-score, .pokechain-score { justify-self: start; margin: 0; padding: .65rem .9rem; color: var(--white); background: var(--black); border-radius: 999px; font-weight: 950; }
 .silhouette-frame { display: grid; place-items: center; min-height: clamp(280px, 45vw, 520px); padding: clamp(1rem, 4vw, 2rem); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-xl); }
 .silhouette-frame img { width: min(72vw, 400px); height: min(72vw, 400px); object-fit: contain; filter: brightness(0) saturate(0); user-select: none; pointer-events: none; }
 .silhouette-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; }
@@ -369,7 +369,7 @@ body.is-loading-route main { opacity: .42; pointer-events: none; }
   .games-grid, .theme-box { grid-template-columns: 1fr; }
   .game-card { min-height: 230px; }
   .profile-card, .profile-card.theme-box-card { grid-column: 1 / -1; }
-  .profile-form .btn, .pokedle-form .btn, .pokedex-rush-form .btn, .pokedex-search .btn, .poketype-form .btn { width: 100%; }
+  .profile-form .btn, .pokedle-form .btn, .pokedex-rush-form .btn, .pokedex-search .btn, .poketype-form .btn, .pokechain-form .btn { width: 100%; }
   .pokedex-profile { grid-template-columns: 1fr; }
   .pokedex-stat { grid-template-columns: 1fr auto; }
   .pokedex-stat-bar { grid-column: 1 / -1; }
@@ -442,3 +442,6 @@ body.is-loading-route main { opacity: .42; pointer-events: none; }
   image-rendering: auto;
 }
 .pokeakinator-result img[hidden], .pokeakinator-result[hidden] { display: none; }
+
+.pokechain-constraints { display: grid; gap: .7rem; }
+.pokechain-constraints p { margin: 0; padding: 1rem; color: var(--white); background: var(--black); border-radius: var(--radius-lg); font-size: clamp(1.15rem, 3vw, 2.2rem); font-weight: 950; letter-spacing: -.04em; text-transform: uppercase; }
