@@ -41,6 +41,14 @@ const games = [
     accent: 'red',
     available: true,
   },
+  {
+    id: 'pokeakinator',
+    title: 'PokeAkinator',
+    description: 'Deviner le Pokémon pensé avec des questions.',
+    href: 'games/pokeakinator/index.html',
+    accent: 'red',
+    available: true,
+  },
 ];
 
 const loadedScripts = new Set(Array.from(document.scripts).map((script) => new URL(script.src || window.location.href, window.location.href).href));
@@ -56,6 +64,7 @@ const routeInitializers = {
   'pokedex-rush': () => window.PokeVerseGames?.setupPokedexRush?.(),
   pokecry: () => window.PokeVerseGames?.setupPokeCryGame?.(),
   poketype: () => window.PokeVerseGames?.setupPokeType?.(),
+  pokeakinator: () => window.PokeVerseGames?.setupPokeAkinator?.(),
 };
 
 const isExternalLink = (link) => {
