@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokéChain — PokeVerse</title>
+  <meta name="description" content="PokéChain." />
+  <link rel="stylesheet" href="../../css/style.css" />
+  <script src="../../js/themes.js" defer></script>
+  <script src="../../js/playerProgress.js" defer></script>
+  <script src="../../js/pokeapi.js" defer></script>
+  <script src="pokechain.js" defer></script>
+</head>
+<body data-page="pokechain">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+
+  <header class="site-header" data-site-header>
+    <a class="brand" href="../../index.html" aria-label="PokeVerse">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>PokeVerse</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Ouvrir le menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Navigation principale">
+      <a href="../../index.html" data-nav-link>Accueil</a>
+      <a href="../../index.html#games" data-nav-link>Jeux</a>
+      <a href="../../pokedex/" data-nav-link>Pokédex</a>
+      <a href="../../profile.html" data-nav-link>Profil</a>
+      <a href="../../medals.html" data-nav-link>Médailles</a>
+    </nav>
+  </header>
+
+  <main id="main-content" class="pokechain-page">
+    <section class="pokechain-hero section-band" aria-labelledby="pokechain-title">
+      <h1 id="pokechain-title">PokéChain</h1>
+      <div class="pokechain-start" data-pokechain-start-panel>
+        <button class="btn btn-primary" type="button" data-pokechain-start>Commencer</button>
+        <p class="pokechain-error" data-pokechain-error></p>
+      </div>
+
+      <div class="pokechain-game" data-pokechain-game hidden>
+        <p class="pokechain-score"><span data-pokechain-run>0</span></p>
+        <div class="pokechain-constraints" data-pokechain-constraints></div>
+        <form class="pokechain-form" data-pokechain-form autocomplete="off">
+          <label class="sr-only" for="pokechain-answer">Pokémon</label>
+          <input id="pokechain-answer" class="pokechain-input" type="search" placeholder="Pokémon" list="pokechain-list" data-pokechain-input />
+          <datalist id="pokechain-list" data-pokechain-list></datalist>
+          <button class="btn btn-primary" type="submit">Valider</button>
+        </form>
+        <p class="pokechain-status" data-pokechain-status></p>
+      </div>
+
+      <div class="pokechain-result" data-pokechain-result hidden>
+        <h2>Résultat</h2>
+        <p data-pokechain-answer></p>
+        <button class="btn btn-primary" type="button" data-pokechain-new>Nouvelle partie</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 PokeVerse</p>
+    <a href="../../index.html">Accueil</a>
+  </footer>
+</body>
+</html>

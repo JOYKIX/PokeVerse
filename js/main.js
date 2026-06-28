@@ -42,6 +42,14 @@ const games = [
     available: true,
   },
   {
+    id: 'pokechain',
+    title: 'PokéChain',
+    description: 'Répondre aux contraintes cumulées.',
+    href: 'games/pokechain/index.html',
+    accent: 'red',
+    available: true,
+  },
+  {
     id: 'pokeakinator',
     title: 'Pokinator',
     description: 'Deviner le Pokémon pensé avec des questions.',
@@ -65,6 +73,7 @@ const routeInitializers = {
   pokecry: () => window.PokeVerseGames?.setupPokeCryGame?.(),
   poketype: () => window.PokeVerseGames?.setupPokeType?.(),
   pokeakinator: () => window.PokeVerseGames?.setupPokeAkinator?.(),
+  pokechain: () => window.PokeVerseGames?.setupPokeChain?.(),
 };
 
 const isExternalLink = (link) => {
