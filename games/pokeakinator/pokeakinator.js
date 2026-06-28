@@ -1,7 +1,8 @@
 const { fetchJson, runInBatches, pokemonIds } = window.PokeVersePokeApi;
 
-const POKEAKINATOR_CACHE_KEY = 'pokeakinator:pokemon:v1';
-const MAX_QUESTIONS = 24;
+const POKEAKINATOR_CACHE_KEY = 'pokeakinator:pokemon:v2';
+const MAX_QUESTIONS = 22;
+const PREVIEW_LIMIT = 8;
 
 const formatPokemonName = (name) => name
   .split('-')
@@ -69,6 +70,7 @@ const fetchPokeAkinatorPokemon = async () => {
       color,
       shape,
       habitat,
+      sprite: detail.sprites.other?.['official-artwork']?.front_default ?? detail.sprites.front_default,
       height: detail.height,
       weight: detail.weight,
       isLegendary: species.is_legendary,
@@ -122,21 +124,37 @@ const state = {
   guessed: null,
 };
 
+const scoreQuestion = (question) => {
+  const yesCount = state.candidates.filter(question.test).length;
+  const noCount = state.candidates.length - yesCount;
+  const balance = Math.abs(yesCount - noCount);
+  const reusePenalty = state.asked.has(question.key) ? state.candidates.length : 0;
+  return { question, score: balance + reusePenalty, yesCount, noCount };
+};
+
 const pickQuestion = () => state.questions
-  .filter((question) => !state.asked.has(question.key))
-  .map((question) => {
-    const yesCount = state.candidates.filter(question.test).length;
-    return { question, score: Math.abs((state.candidates.length / 2) - yesCount), yesCount };
-  })
-  .filter((entry) => entry.yesCount > 0 && entry.yesCount < state.candidates.length)
+  .map(scoreQuestion)
+  .filter((entry) => !state.asked.has(entry.question.key) && entry.yesCount > 0 && entry.noCount > 0)
   .sort((first, second) => first.score - second.score)[0]?.question ?? null;
+
+const updateCandidatesPreview = () => {
+  const preview = document.querySelector('[data-pokeakinator-candidates]');
+  preview.replaceChildren(...state.candidates.slice(0, PREVIEW_LIMIT).map((pokemon) => {
+    const chip = document.createElement('span');
+    chip.textContent = pokemon.name;
+    return chip;
+  }));
+};
 
 const showGuess = (success = true) => {
   state.guessed = state.candidates[0] ?? null;
+  const resultSprite = document.querySelector('[data-pokeakinator-result-sprite]');
   document.querySelector('[data-pokeakinator-game]').hidden = true;
   document.querySelector('[data-pokeakinator-result]').hidden = false;
   document.querySelector('[data-pokeakinator-result-title]').textContent = success ? 'Est-ce ce Pokémon ?' : 'Je ne sais pas.';
   document.querySelector('[data-pokeakinator-guess]').textContent = state.guessed?.name ?? '';
+  resultSprite.src = state.guessed?.sprite ?? '';
+  resultSprite.hidden = !state.guessed?.sprite;
   document.querySelector('[data-pokeakinator-correct]').hidden = !state.guessed;
   document.querySelector('[data-pokeakinator-wrong]').hidden = !state.guessed;
 };
@@ -156,14 +174,18 @@ const askNext = () => {
   state.currentQuestion = question;
   state.asked.add(question.key);
   state.questionCount += 1;
+  document.querySelector('[data-pokeakinator-step]').textContent = `${state.questionCount}/${MAX_QUESTIONS}`;
   document.querySelector('[data-pokeakinator-count]').textContent = `${state.candidates.length} Pokémon`;
+  document.querySelector('[data-pokeakinator-progress]').style.width = `${Math.round((state.questionCount / MAX_QUESTIONS) * 100)}%`;
   document.querySelector('[data-pokeakinator-question]').textContent = question.text;
+  updateCandidatesPreview();
 };
 
 const answerQuestion = (answer) => {
   if (!state.currentQuestion) return;
   if (answer === 'yes') state.candidates = state.candidates.filter(state.currentQuestion.test);
   if (answer === 'no') state.candidates = state.candidates.filter((pokemon) => !state.currentQuestion.test(pokemon));
+  state.currentQuestion = null;
   askNext();
 };
 
@@ -184,6 +206,8 @@ const startGame = async () => {
     state.currentQuestion = null;
     state.questionCount = 0;
     state.guessed = null;
+    document.querySelector('[data-pokeakinator-progress]').style.width = '0%';
+    updateCandidatesPreview();
     document.querySelector('[data-pokeakinator-start-panel]').hidden = true;
     document.querySelector('[data-pokeakinator-result]').hidden = true;
     document.querySelector('[data-pokeakinator-game]').hidden = false;
