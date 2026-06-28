@@ -1,6 +1,6 @@
 const { fetchJson, runInBatches, pokemonIds } = window.PokeVersePokeApi;
 
-const POKEAKINATOR_CACHE_KEY = 'pokeakinator:pokemon:v4';
+const POKEAKINATOR_CACHE_KEY = 'pokeakinator:pokemon:v5';
 const MAX_QUESTIONS = 35;
 const PREVIEW_LIMIT = 8;
 
@@ -10,7 +10,9 @@ const formatPokemonName = (name) => name
   .join(' ');
 
 const getFrenchResourceName = (resource, fallback) => (
-  resource.names?.find((entry) => entry.language.name === 'fr')?.name ?? fallback
+  resource.names?.find((entry) => entry.language.name === 'fr')?.name
+  ?? resource.names?.find((entry) => entry.language.name === 'en')?.name
+  ?? fallback
 );
 
 const readCache = () => {
@@ -55,14 +57,22 @@ const fetchPokeAkinatorPokemon = async () => {
     const evolvesTo = hasFinalEvolution(evolutionChain.chain, species.name);
     const evolutionTriggerNames = getEvolutionTriggerNames(evolutionChain.chain, species.name);
     const evolutionTriggers = await Promise.all(evolutionTriggerNames.map((trigger) => getLabel(trigger.url, trigger.name)));
+    const types = await Promise.all(detail.types
+      .sort((first, second) => first.slot - second.slot)
+      .map((slot) => getLabel(slot.type.url, slot.type.name)));
 
     const color = await getLabel(species.color.url, species.color.name);
     const shape = species.shape ? await getLabel(species.shape.url, species.shape.name) : '';
+    const habitat = species.habitat ? await getLabel(species.habitat.url, species.habitat.name) : '';
+    const generation = await getLabel(species.generation.url, species.generation.name);
     return {
       id: species.id,
       name: getFrenchResourceName(species, formatPokemonName(detail.name)),
       color,
       shape,
+      habitat,
+      generation,
+      types,
       sprite: detail.sprites.other?.['official-artwork']?.front_default ?? detail.sprites.front_default,
       height: detail.height,
       weight: detail.weight,
@@ -121,34 +131,56 @@ const shuffle = (items) => {
   return shuffled;
 };
 
-const formatThreshold = (threshold, multiplier) => {
-  const value = threshold * multiplier;
-  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+const formatMeasure = (value, multiplier, unit) => {
+  const measured = value * multiplier;
+  const formatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(measured);
+  return `${formatted}${unit}`;
 };
 
-const makeThresholdQuestions = (label, field, thresholds, unit = '', multiplier = 1) => thresholds.map((threshold) => (
-  makeQuestion(
-    `${label} au moins ${formatThreshold(threshold, multiplier)}${unit} ?`,
+const getBalancedThresholds = (pokemon, field, maxThresholds = 12) => {
+  const values = [...new Set(pokemon.map((entry) => entry[field]).filter((value) => value > 0))]
+    .sort((first, second) => first - second);
+  if (values.length <= 2) return [];
+
+  const thresholds = new Set();
+  for (let step = 1; step < maxThresholds; step += 1) {
+    const index = Math.round((values.length * step) / maxThresholds);
+    const threshold = values[Math.min(values.length - 2, Math.max(1, index))];
+    if (threshold > values[0] && threshold < values[values.length - 1]) thresholds.add(threshold);
+  }
+  return [...thresholds];
+};
+
+const makeThresholdQuestions = (pokemon, label, field, unit = '', multiplier = 1, keyPrefix = field) => (
+  getBalancedThresholds(pokemon, field).map((threshold) => makeQuestion(
+    `${label} au moins ${formatMeasure(threshold, multiplier, unit)} ?`,
     (entry) => entry[field] >= threshold,
-    `${field}:${threshold}`,
-  )
-));
+    `${keyPrefix}:${threshold}`,
+  ))
+);
 
-const buildQuestions = (pokemon) => {
-  const unique = (values) => [...new Set(values.filter(Boolean))];
-  return shuffle([
-    ...unique(pokemon.map((entry) => entry.color)).map((color) => makeQuestion(`Sa couleur dominante est-elle ${color} ?`, (entry) => entry.color === color, `color:${color}`)),
-    ...unique(pokemon.map((entry) => entry.shape)).map((shape) => makeQuestion(`Sa forme est-elle ${shape} ?`, (entry) => entry.shape === shape, `shape:${shape}`)),
-    ...unique(pokemon.flatMap((entry) => entry.evolutionTriggers)).map((trigger) => makeQuestion(`Sa méthode d'évolution est-elle ${trigger} ?`, (entry) => entry.evolutionTriggers.includes(trigger), `evolution-trigger:${trigger}`)),
-    ...makeThresholdQuestions('Mesure-t-il', 'height', [3, 5, 10, 15, 20, 30], ' m', 0.1),
-    ...makeThresholdQuestions('Pèse-t-il', 'weight', [50, 100, 250, 500, 1000, 2000], ' kg', 0.1),
-    makeQuestion('Est-ce un Pokémon légendaire ?', (entry) => entry.isLegendary, 'legendary'),
-    makeQuestion('Est-ce un Pokémon fabuleux ?', (entry) => entry.isMythical, 'mythical'),
-    makeQuestion('Est-ce un bébé Pokémon ?', (entry) => entry.isBaby, 'baby'),
-    makeQuestion('A-t-il une pré-évolution ?', (entry) => entry.evolvesFrom, 'evolvesFrom'),
-    makeQuestion('Peut-il évoluer ?', (entry) => entry.evolvesTo, 'evolvesTo'),
-  ]);
+const makeExactQuestions = (pokemon, field, label, accessor = (entry) => entry[field]) => {
+  const values = [...new Set(pokemon.flatMap((entry) => accessor(entry)).filter(Boolean))];
+  return values.map((value) => makeQuestion(
+    `${label} ${value} ?`,
+    (entry) => accessor(entry).includes(value),
+    `${field}:${value}`,
+  ));
 };
+
+const buildQuestions = (pokemon) => shuffle([
+  ...makeExactQuestions(pokemon, 'type', 'A-t-il le type', (entry) => entry.types),
+  ...makeExactQuestions(pokemon, 'generation', 'Vient-il de', (entry) => [entry.generation]),
+  ...makeExactQuestions(pokemon, 'color', 'Sa couleur dominante est-elle', (entry) => [entry.color]),
+  ...makeExactQuestions(pokemon, 'shape', 'Sa forme est-elle', (entry) => [entry.shape]),
+  ...makeExactQuestions(pokemon, 'habitat', 'Son habitat est-il', (entry) => [entry.habitat]),
+  ...makeExactQuestions(pokemon, 'evolution-trigger', "Sa méthode d'évolution est-elle", (entry) => entry.evolutionTriggers),
+  makeQuestion('Est-ce un Pokémon légendaire ?', (entry) => entry.isLegendary, 'legendary'),
+  makeQuestion('Est-ce un Pokémon fabuleux ?', (entry) => entry.isMythical, 'mythical'),
+  makeQuestion('Est-ce un bébé Pokémon ?', (entry) => entry.isBaby, 'baby'),
+  makeQuestion('A-t-il une pré-évolution ?', (entry) => entry.evolvesFrom, 'evolvesFrom'),
+  makeQuestion('Peut-il évoluer ?', (entry) => entry.evolvesTo, 'evolvesTo'),
+]);
 
 const state = {
   pokemon: [],
@@ -160,6 +192,11 @@ const state = {
   guessed: null,
 };
 
+const buildDynamicQuestions = () => [
+  ...makeThresholdQuestions(state.candidates, 'Mesure-t-il', 'height', ' m', 0.1, 'height-dynamic'),
+  ...makeThresholdQuestions(state.candidates, 'Pèse-t-il', 'weight', ' kg', 0.1, 'weight-dynamic'),
+];
+
 const scoreQuestion = (question) => {
   const yesCount = state.candidates.filter(question.test).length;
   const noCount = state.candidates.length - yesCount;
@@ -169,7 +206,7 @@ const scoreQuestion = (question) => {
 };
 
 const pickQuestion = () => {
-  const ranked = state.questions
+  const ranked = [...state.questions, ...buildDynamicQuestions()]
     .map(scoreQuestion)
     .filter((entry) => !state.asked.has(entry.question.key) && entry.yesCount > 0 && entry.noCount > 0)
     .sort((first, second) => first.score - second.score);
