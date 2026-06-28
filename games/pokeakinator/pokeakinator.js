@@ -1,6 +1,6 @@
 const { fetchJson, runInBatches, pokemonIds } = window.PokeVersePokeApi;
 
-const POKEAKINATOR_CACHE_KEY = 'pokeakinator:pokemon:v3';
+const POKEAKINATOR_CACHE_KEY = 'pokeakinator:pokemon:v4';
 const MAX_QUESTIONS = 35;
 const PREVIEW_LIMIT = 8;
 
@@ -50,50 +50,28 @@ const fetchPokeAkinatorPokemon = async () => {
     if (!detail.is_default) return null;
 
     const species = await fetchJson(detail.species.url);
-    const generation = Number(species.generation.url.match(/generation\/(\d+)\//)?.[1] ?? 0);
     const evolutionChain = await fetchJson(species.evolution_chain.url);
     const evolvesFrom = Boolean(species.evolves_from_species);
     const evolvesTo = hasFinalEvolution(evolutionChain.chain, species.name);
+    const evolutionTriggerNames = getEvolutionTriggerNames(evolutionChain.chain, species.name);
+    const evolutionTriggers = await Promise.all(evolutionTriggerNames.map((trigger) => getLabel(trigger.url, trigger.name)));
 
-    const typeLabels = await Promise.all(detail.types
-      .sort((first, second) => first.slot - second.slot)
-      .map((entry) => getLabel(entry.type.url, entry.type.name)));
     const color = await getLabel(species.color.url, species.color.name);
     const shape = species.shape ? await getLabel(species.shape.url, species.shape.name) : '';
-    const habitat = species.habitat ? await getLabel(species.habitat.url, species.habitat.name) : '';
-    const growthRate = await getLabel(species.growth_rate.url, species.growth_rate.name);
-    const eggGroups = await Promise.all(species.egg_groups.map((entry) => getLabel(entry.url, entry.name)));
-    const abilities = await Promise.all(detail.abilities.map((entry) => getLabel(entry.ability.url, entry.ability.name)));
-    const stats = Object.fromEntries(detail.stats.map((entry) => [entry.stat.name, entry.base_stat]));
-
     return {
       id: species.id,
       name: getFrenchResourceName(species, formatPokemonName(detail.name)),
-      generation,
-      types: typeLabels,
       color,
       shape,
-      habitat,
       sprite: detail.sprites.other?.['official-artwork']?.front_default ?? detail.sprites.front_default,
       height: detail.height,
       weight: detail.weight,
-      baseExperience: detail.base_experience ?? 0,
-      captureRate: species.capture_rate,
-      baseHappiness: species.base_happiness ?? 0,
-      growthRate,
-      eggGroups,
-      abilities,
-      hp: stats.hp ?? 0,
-      attack: stats.attack ?? 0,
-      defense: stats.defense ?? 0,
-      specialAttack: stats['special-attack'] ?? 0,
-      specialDefense: stats['special-defense'] ?? 0,
-      speed: stats.speed ?? 0,
       isLegendary: species.is_legendary,
       isMythical: species.is_mythical,
       isBaby: species.is_baby,
       evolvesFrom,
       evolvesTo,
+      evolutionTriggers,
     };
   }, 32);
 
@@ -108,6 +86,28 @@ const hasFinalEvolution = (chain, name) => {
     return node.evolves_to.some(visit);
   };
   return visit(chain);
+};
+
+const getEvolutionTriggerNames = (chain, name) => {
+  const triggers = new Map();
+  const addTriggers = (details) => {
+    details?.forEach((detail) => {
+      if (detail.trigger?.name && detail.trigger?.url) triggers.set(detail.trigger.name, detail.trigger);
+    });
+  };
+
+  const visit = (node, incomingDetails = []) => {
+    if (node.species.name === name) {
+      addTriggers(incomingDetails);
+      node.evolves_to.forEach((evolution) => addTriggers(evolution.evolution_details));
+      return true;
+    }
+
+    return node.evolves_to.some((evolution) => visit(evolution, evolution.evolution_details));
+  };
+
+  visit(chain);
+  return [...triggers.values()];
 };
 
 const makeQuestion = (text, test, key) => ({ text, test, key });
@@ -137,25 +137,11 @@ const makeThresholdQuestions = (label, field, thresholds, unit = '', multiplier 
 const buildQuestions = (pokemon) => {
   const unique = (values) => [...new Set(values.filter(Boolean))];
   return shuffle([
-    ...unique(pokemon.flatMap((entry) => entry.types)).map((type) => makeQuestion(`Est-il de type ${type} ?`, (entry) => entry.types.includes(type), `type:${type}`)),
-    ...unique(pokemon.map((entry) => entry.generation)).map((generation) => makeQuestion(`Vient-il de la génération ${generation} ?`, (entry) => entry.generation === generation, `generation:${generation}`)),
     ...unique(pokemon.map((entry) => entry.color)).map((color) => makeQuestion(`Sa couleur dominante est-elle ${color} ?`, (entry) => entry.color === color, `color:${color}`)),
     ...unique(pokemon.map((entry) => entry.shape)).map((shape) => makeQuestion(`Sa forme est-elle ${shape} ?`, (entry) => entry.shape === shape, `shape:${shape}`)),
-    ...unique(pokemon.map((entry) => entry.habitat)).map((habitat) => makeQuestion(`Vit-il dans l'habitat ${habitat} ?`, (entry) => entry.habitat === habitat, `habitat:${habitat}`)),
-    ...unique(pokemon.map((entry) => entry.growthRate)).map((growthRate) => makeQuestion(`A-t-il une croissance ${growthRate} ?`, (entry) => entry.growthRate === growthRate, `growth:${growthRate}`)),
-    ...unique(pokemon.flatMap((entry) => entry.eggGroups)).map((eggGroup) => makeQuestion(`Son groupe d'œuf est-il ${eggGroup} ?`, (entry) => entry.eggGroups.includes(eggGroup), `egg:${eggGroup}`)),
-    ...unique(pokemon.flatMap((entry) => entry.abilities)).map((ability) => makeQuestion(`Peut-il avoir le talent ${ability} ?`, (entry) => entry.abilities.includes(ability), `ability:${ability}`)),
+    ...unique(pokemon.flatMap((entry) => entry.evolutionTriggers)).map((trigger) => makeQuestion(`Sa méthode d'évolution est-elle ${trigger} ?`, (entry) => entry.evolutionTriggers.includes(trigger), `evolution-trigger:${trigger}`)),
     ...makeThresholdQuestions('Mesure-t-il', 'height', [3, 5, 10, 15, 20, 30], ' m', 0.1),
     ...makeThresholdQuestions('Pèse-t-il', 'weight', [50, 100, 250, 500, 1000, 2000], ' kg', 0.1),
-    ...makeThresholdQuestions('Son taux de capture est-il', 'captureRate', [45, 75, 120, 190, 255]),
-    ...makeThresholdQuestions('Son bonheur de base est-il', 'baseHappiness', [35, 50, 70, 100]),
-    ...makeThresholdQuestions('Son expérience de base est-elle', 'baseExperience', [50, 100, 150, 200, 250]),
-    ...makeThresholdQuestions('Son PV de base est-il', 'hp', [40, 60, 80, 100]),
-    ...makeThresholdQuestions('Son attaque de base est-elle', 'attack', [40, 60, 80, 100, 120]),
-    ...makeThresholdQuestions('Sa défense de base est-elle', 'defense', [40, 60, 80, 100, 120]),
-    ...makeThresholdQuestions('Son attaque spéciale de base est-elle', 'specialAttack', [40, 60, 80, 100, 120]),
-    ...makeThresholdQuestions('Sa défense spéciale de base est-elle', 'specialDefense', [40, 60, 80, 100, 120]),
-    ...makeThresholdQuestions('Sa vitesse de base est-elle', 'speed', [40, 60, 80, 100, 120]),
     makeQuestion('Est-ce un Pokémon légendaire ?', (entry) => entry.isLegendary, 'legendary'),
     makeQuestion('Est-ce un Pokémon fabuleux ?', (entry) => entry.isMythical, 'mythical'),
     makeQuestion('Est-ce un bébé Pokémon ?', (entry) => entry.isBaby, 'baby'),
